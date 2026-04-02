@@ -1,0 +1,29 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">On-prem model as a service cover image</title>
+  <desc id="desc">Abstract cover with stacked compute blocks, routing lines, and platform headline.</desc>
+  <defs>
+    <linearGradient id="bg" x1="78" y1="42" x2="1108" y2="608" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#120816"/>
+      <stop offset="1" stop-color="#2B1230"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="812" y1="72" x2="1058" y2="130" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FB7185"/>
+      <stop offset="1" stop-color="#F59E0B"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <rect x="54" y="54" width="1092" height="522" rx="28" fill="#190C1F" stroke="#5B275A" stroke-width="2"/>
+  <rect x="120" y="122" width="292" height="180" rx="20" fill="#2A1330" stroke="#FB7185" stroke-width="3"/>
+  <rect x="454" y="96" width="292" height="232" rx="20" fill="#31163A" stroke="#F59E0B" stroke-width="3"/>
+  <rect x="788" y="146" width="292" height="132" rx="20" fill="#25112D" stroke="#F97316" stroke-width="3"/>
+  <path d="M412 212H454" stroke="#FB7185" stroke-width="5"/>
+  <path d="M746 212H788" stroke="#F59E0B" stroke-width="5"/>
+  <path d="M934 278V350H266V302" stroke="#FDBA74" stroke-width="4"/>
+  <path d="M120 392H1080" stroke="#4A253E" stroke-width="2" stroke-dasharray="10 12"/>
+  <rect x="812" y="72" width="246" height="54" rx="27" fill="url(#accent)"/>
+  <text x="935" y="106" text-anchor="middle" fill="#220B10" font-family="Arial, Helvetica, sans-serif" font-size="17" font-weight="700" letter-spacing="1.5">PRIVATE AI PLATFORM</text>
+  <text x="104" y="426" fill="#FCA5A5" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="700" letter-spacing="4">ON-PREM MAAS</text>
+  <text x="104" y="488" fill="#FFF7ED" font-family="Arial, Helvetica, sans-serif" font-size="50" font-weight="700">Designing an On-Prem</text>
+  <text x="104" y="546" fill="#FFF7ED" font-family="Arial, Helvetica, sans-serif" font-size="50" font-weight="700">Model-as-a-Service Platform</text>
+  <text x="104" y="586" fill="#F4B5B9" font-family="Arial, Helvetica, sans-serif" font-size="24">Routing, governance, observability, and GPU control as one system.</text>
+</svg>

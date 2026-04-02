@@ -1,0 +1,55 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">Claude Code in the Terminal cover image</title>
+  <desc id="desc">Abstract cover with terminal window and code execution pattern for Claude Code deep-dive.</desc>
+  <defs>
+    <linearGradient id="bg" x1="60" y1="40" x2="1140" y2="590" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#060E08"/>
+      <stop offset="1" stop-color="#0C2014"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="820" y1="72" x2="1060" y2="128" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#4ADE80"/>
+      <stop offset="1" stop-color="#22D3EE"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <rect x="54" y="54" width="1092" height="522" rx="28" fill="#081209" stroke="#1A3820" stroke-width="2"/>
+  <!-- Terminal window chrome -->
+  <rect x="108" y="90" width="860" height="260" rx="10" fill="#0C1A0E" stroke="#2A4A2C" stroke-width="1.5"/>
+  <!-- Terminal title bar -->
+  <rect x="108" y="90" width="860" height="36" rx="10" fill="#102012" stroke="#2A4A2C" stroke-width="1.5"/>
+  <rect x="108" y="108" width="860" height="18" fill="#102012"/>
+  <!-- Traffic light dots -->
+  <circle cx="136" cy="108" r="7" fill="#EF4444" opacity="0.7"/>
+  <circle cx="158" cy="108" r="7" fill="#FBBF24" opacity="0.7"/>
+  <circle cx="180" cy="108" r="7" fill="#4ADE80" opacity="0.7"/>
+  <!-- Terminal label -->
+  <text x="488" y="113" text-anchor="middle" fill="#4A7A4C" font-family="monospace, Courier New" font-size="12">claude — bash — 120×32</text>
+  <!-- Terminal content: fake shell lines -->
+  <text x="126" y="150" fill="#4ADE80" font-family="monospace, Courier New" font-size="13">$ claude -p "review the diff for security issues" --output-format json</text>
+  <text x="126" y="172" fill="#6EE7B7" font-family="monospace, Courier New" font-size="13" opacity="0.85">✓ Reading CLAUDE.md...</text>
+  <text x="126" y="194" fill="#6EE7B7" font-family="monospace, Courier New" font-size="13" opacity="0.85">✓ Loading hooks from .claude/settings.json</text>
+  <text x="126" y="216" fill="#6EE7B7" font-family="monospace, Courier New" font-size="13" opacity="0.85">✓ Sub-agent: security-reviewer (opus-4-6, worktree isolation)</text>
+  <text x="126" y="238" fill="#A7F3D0" font-family="monospace, Courier New" font-size="13" opacity="0.9">→ Scanning src/ for OWASP Top 10 patterns...</text>
+  <text x="126" y="260" fill="#A7F3D0" font-family="monospace, Courier New" font-size="13" opacity="0.9">→ Checking for secrets exposure in 43 files...</text>
+  <text x="126" y="282" fill="#FCD34D" font-family="monospace, Courier New" font-size="13" opacity="0.85">⚠  src/payments/handler.ts:142 — SQL injection risk (severity: high)</text>
+  <text x="126" y="304" fill="#86EFAC" font-family="monospace, Courier New" font-size="13" opacity="0.8">{"verdict":"request_changes","issues":[{"line":142,"severity":"high"...</text>
+  <!-- Blinking cursor -->
+  <rect x="126" y="322" width="9" height="16" fill="#4ADE80" opacity="0.9"/>
+  <!-- CLAUDE.md tag on the right -->
+  <rect x="1000" y="100" width="130" height="38" rx="8" fill="#102012" stroke="#2A5A2C" stroke-width="1.5"/>
+  <text x="1015" y="124" fill="#4ADE80" font-family="monospace, Courier New" font-size="13" font-weight="700">CLAUDE.md</text>
+  <rect x="1000" y="150" width="130" height="38" rx="8" fill="#102012" stroke="#2A5A2C" stroke-width="1.5"/>
+  <text x="1015" y="174" fill="#6EE7B7" font-family="monospace, Courier New" font-size="12">settings.json</text>
+  <rect x="1000" y="200" width="130" height="38" rx="8" fill="#102012" stroke="#2A5A2C" stroke-width="1.5"/>
+  <text x="1015" y="224" fill="#6EE7B7" font-family="monospace, Courier New" font-size="12">agents/</text>
+  <rect x="1000" y="250" width="130" height="38" rx="8" fill="#102012" stroke="#2A5A2C" stroke-width="1.5"/>
+  <text x="1015" y="274" fill="#6EE7B7" font-family="monospace, Courier New" font-size="12">.mcp.json</text>
+  <rect x="1000" y="300" width="130" height="38" rx="8" fill="#102012" stroke="#1A4A1C" stroke-width="1.5"/>
+  <text x="1015" y="324" fill="#4A7A4C" font-family="monospace, Courier New" font-size="12">hooks/</text>
+  <rect x="820" y="72" width="196" height="48" rx="24" fill="url(#accent)"/>
+  <text x="918" y="103" text-anchor="middle" fill="#020A04" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="700" letter-spacing="1.5">CLAUDE CODE</text>
+  <text x="104" y="410" fill="#2A7A3A" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="700" letter-spacing="4">DEVELOPER TOOLS</text>
+  <text x="104" y="468" fill="#F0FFF4" font-family="Arial, Helvetica, sans-serif" font-size="50" font-weight="700">Claude Code in the</text>
+  <text x="104" y="526" fill="#F0FFF4" font-family="Arial, Helvetica, sans-serif" font-size="50" font-weight="700">Terminal: The Deep-Dive</text>
+  <text x="104" y="570" fill="#2A7A3A" font-family="Arial, Helvetica, sans-serif" font-size="22">CLAUDE.md, hooks, sub-agents, and CI/CD integration from the start.</text>
+</svg>

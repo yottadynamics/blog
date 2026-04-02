@@ -1,0 +1,34 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">Production readiness review cover image</title>
+  <desc id="desc">Abstract cover with checklist cards and delivery risk headline.</desc>
+  <defs>
+    <linearGradient id="bg" x1="78" y1="42" x2="1108" y2="608" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#141414"/>
+      <stop offset="1" stop-color="#2F261A"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="834" y1="72" x2="1048" y2="130" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FACC15"/>
+      <stop offset="1" stop-color="#FB7185"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <rect x="54" y="54" width="1092" height="522" rx="28" fill="#1E1912" stroke="#6E5330" stroke-width="2"/>
+  <rect x="124" y="108" width="300" height="208" rx="22" fill="#2A2218" stroke="#FACC15" stroke-width="3"/>
+  <rect x="450" y="136" width="300" height="208" rx="22" fill="#241E17" stroke="#FDBA74" stroke-width="3"/>
+  <rect x="776" y="164" width="300" height="208" rx="22" fill="#2D1E1A" stroke="#FB7185" stroke-width="3"/>
+  <path d="M180 182L202 204L242 164" stroke="#FACC15" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M506 210L528 232L568 192" stroke="#FDBA74" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M832 238L854 260L894 220" stroke="#FB7185" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M180 250H350" stroke="#8E7753" stroke-width="6" stroke-linecap="round"/>
+  <path d="M180 282H330" stroke="#8E7753" stroke-width="6" stroke-linecap="round"/>
+  <path d="M506 278H676" stroke="#8E7753" stroke-width="6" stroke-linecap="round"/>
+  <path d="M506 310H656" stroke="#8E7753" stroke-width="6" stroke-linecap="round"/>
+  <path d="M832 306H1002" stroke="#8E7753" stroke-width="6" stroke-linecap="round"/>
+  <path d="M832 338H982" stroke="#8E7753" stroke-width="6" stroke-linecap="round"/>
+  <rect x="834" y="72" width="214" height="54" rx="27" fill="url(#accent)"/>
+  <text x="941" y="106" text-anchor="middle" fill="#25120A" font-family="Arial, Helvetica, sans-serif" font-size="17" font-weight="700" letter-spacing="1.5">DELIVERY REVIEW</text>
+  <text x="104" y="430" fill="#FDE68A" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="700" letter-spacing="4">PRODUCTION READINESS</text>
+  <text x="104" y="492" fill="#FFFDF6" font-family="Arial, Helvetica, sans-serif" font-size="50" font-weight="700">What a Production Readiness</text>
+  <text x="104" y="550" fill="#FFFDF6" font-family="Arial, Helvetica, sans-serif" font-size="50" font-weight="700">Review Should Surface</text>
+  <text x="104" y="590" fill="#D8C29A" font-family="Arial, Helvetica, sans-serif" font-size="24">Ownership, rollback, observability, recovery paths, and delivery risk.</text>
+</svg>

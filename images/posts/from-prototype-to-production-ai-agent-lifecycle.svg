@@ -1,0 +1,46 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">From Prototype to Production cover image</title>
+  <desc id="desc">Abstract cover with five-stage delivery pipeline and operational lifecycle headline.</desc>
+  <defs>
+    <linearGradient id="bg" x1="60" y1="40" x2="1140" y2="590" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#060C1A"/>
+      <stop offset="1" stop-color="#102040"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="820" y1="72" x2="1060" y2="128" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#38BDF8"/>
+      <stop offset="1" stop-color="#818CF8"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <rect x="54" y="54" width="1092" height="522" rx="28" fill="#080E20" stroke="#1C3060" stroke-width="2"/>
+  <!-- Five pipeline stage circles -->
+  <circle cx="168" cy="210" r="44" fill="#0C1A38" stroke="#38BDF8" stroke-width="3"/>
+  <circle cx="368" cy="210" r="44" fill="#0C1A38" stroke="#60A5FA" stroke-width="3"/>
+  <circle cx="568" cy="210" r="44" fill="#0C1A38" stroke="#93C5FD" stroke-width="3"/>
+  <circle cx="768" cy="210" r="44" fill="#0C1A38" stroke="#A5B4FC" stroke-width="3"/>
+  <circle cx="968" cy="210" r="44" fill="#0C1A38" stroke="#818CF8" stroke-width="3"/>
+  <!-- Arrows between stages -->
+  <line x1="212" y1="210" x2="320" y2="210" stroke="#38BDF8" stroke-width="3"/>
+  <polygon points="324,203 338,210 324,217" fill="#38BDF8"/>
+  <line x1="412" y1="210" x2="520" y2="210" stroke="#60A5FA" stroke-width="3"/>
+  <polygon points="524,203 538,210 524,217" fill="#60A5FA"/>
+  <line x1="612" y1="210" x2="720" y2="210" stroke="#93C5FD" stroke-width="3"/>
+  <polygon points="724,203 738,210 724,217" fill="#93C5FD"/>
+  <line x1="812" y1="210" x2="920" y2="210" stroke="#A5B4FC" stroke-width="3"/>
+  <polygon points="924,203 938,210 924,217" fill="#A5B4FC"/>
+  <!-- Stage labels inside circles -->
+  <text x="168" y="206" text-anchor="middle" fill="#BAE6FD" font-family="Arial, Helvetica, sans-serif" font-size="11" font-weight="700">RESEARCH</text>
+  <text x="368" y="206" text-anchor="middle" fill="#BAE6FD" font-family="Arial, Helvetica, sans-serif" font-size="11" font-weight="700">PROTOTYPE</text>
+  <text x="568" y="206" text-anchor="middle" fill="#BAE6FD" font-family="Arial, Helvetica, sans-serif" font-size="11" font-weight="700">EVALUATE</text>
+  <text x="768" y="206" text-anchor="middle" fill="#BAE6FD" font-family="Arial, Helvetica, sans-serif" font-size="11" font-weight="700">DEPLOY</text>
+  <text x="968" y="206" text-anchor="middle" fill="#BAE6FD" font-family="Arial, Helvetica, sans-serif" font-size="11" font-weight="700">OBSERVE</text>
+  <!-- Feedback loop from OBSERVE back to EVALUATE -->
+  <path d="M968 254 Q968 330 568 340 Q368 330 368 254" stroke="#3B5280" stroke-width="2" stroke-dasharray="8 8" fill="none"/>
+  <polygon points="365,254 372,270 379,254" fill="#3B5280"/>
+  <rect x="820" y="72" width="196" height="48" rx="24" fill="url(#accent)"/>
+  <text x="918" y="103" text-anchor="middle" fill="#020810" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="700" letter-spacing="1.5">DELIVERY</text>
+  <text x="104" y="408" fill="#6A9AC8" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="700" letter-spacing="4">OPERATIONAL LIFECYCLE</text>
+  <text x="104" y="466" fill="#F6FAFF" font-family="Arial, Helvetica, sans-serif" font-size="50" font-weight="700">From Prototype</text>
+  <text x="104" y="524" fill="#F6FAFF" font-family="Arial, Helvetica, sans-serif" font-size="50" font-weight="700">to Production</text>
+  <text x="104" y="568" fill="#6A9AC8" font-family="Arial, Helvetica, sans-serif" font-size="22">80% of the effort is evaluation infrastructure — not building the agent.</text>
+</svg>

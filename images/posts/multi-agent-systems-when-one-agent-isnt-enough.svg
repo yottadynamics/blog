@@ -1,0 +1,46 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">Multi-Agent Systems cover image</title>
+  <desc id="desc">Abstract cover with orchestrator and specialist agent constellation and multi-agent system design headline.</desc>
+  <defs>
+    <linearGradient id="bg" x1="60" y1="40" x2="1140" y2="590" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#120820"/>
+      <stop offset="1" stop-color="#2A1040"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="820" y1="72" x2="1060" y2="128" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#E879F9"/>
+      <stop offset="1" stop-color="#A78BFA"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <rect x="54" y="54" width="1092" height="522" rx="28" fill="#160A28" stroke="#42186A" stroke-width="2"/>
+  <!-- Central orchestrator -->
+  <circle cx="600" cy="215" r="54" fill="#1E1038" stroke="#E879F9" stroke-width="3.5"/>
+  <text x="600" y="211" text-anchor="middle" fill="#F0ABFC" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="700">ORCHESTRATOR</text>
+  <!-- Specialist agents at cardinal positions -->
+  <!-- Top -->
+  <circle cx="600" cy="90" r="36" fill="#1A0C30" stroke="#C084FC" stroke-width="2.5"/>
+  <text x="600" y="95" text-anchor="middle" fill="#DDD6FE" font-family="Arial, Helvetica, sans-serif" font-size="11" font-weight="700">SPECIALIST A</text>
+  <line x1="600" y1="161" x2="600" y2="126" stroke="#A855F7" stroke-width="2.5"/>
+  <polygon points="596,127 600,113 604,127" fill="#A855F7"/>
+  <!-- Left -->
+  <circle cx="400" cy="215" r="36" fill="#1A0C30" stroke="#C084FC" stroke-width="2.5"/>
+  <text x="400" y="220" text-anchor="middle" fill="#DDD6FE" font-family="Arial, Helvetica, sans-serif" font-size="11" font-weight="700">SPECIALIST B</text>
+  <line x1="546" y1="215" x2="436" y2="215" stroke="#A855F7" stroke-width="2.5"/>
+  <polygon points="437,211 423,215 437,219" fill="#A855F7"/>
+  <!-- Right -->
+  <circle cx="800" cy="215" r="36" fill="#1A0C30" stroke="#E879F9" stroke-width="2.5"/>
+  <text x="800" y="220" text-anchor="middle" fill="#DDD6FE" font-family="Arial, Helvetica, sans-serif" font-size="11" font-weight="700">SPECIALIST C</text>
+  <line x1="654" y1="215" x2="764" y2="215" stroke="#D946EF" stroke-width="2.5"/>
+  <polygon points="763,211 777,215 763,219" fill="#D946EF"/>
+  <!-- Bottom -->
+  <circle cx="600" cy="338" r="36" fill="#1A0C30" stroke="#E879F9" stroke-width="2.5"/>
+  <text x="600" y="343" text-anchor="middle" fill="#DDD6FE" font-family="Arial, Helvetica, sans-serif" font-size="11" font-weight="700">SPECIALIST D</text>
+  <line x1="600" y1="269" x2="600" y2="302" stroke="#D946EF" stroke-width="2.5"/>
+  <polygon points="596,301 600,315 604,301" fill="#D946EF"/>
+  <rect x="820" y="72" width="224" height="48" rx="24" fill="url(#accent)"/>
+  <text x="932" y="103" text-anchor="middle" fill="#0C0418" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="700" letter-spacing="1.5">MULTI-AGENT</text>
+  <text x="104" y="408" fill="#A05AC8" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="700" letter-spacing="4">SYSTEM DESIGN</text>
+  <text x="104" y="466" fill="#FCF8FF" font-family="Arial, Helvetica, sans-serif" font-size="50" font-weight="700">Multi-Agent Systems:</text>
+  <text x="104" y="524" fill="#FCF8FF" font-family="Arial, Helvetica, sans-serif" font-size="50" font-weight="700">When One Agent Isn't Enough</text>
+  <text x="104" y="568" fill="#A05AC8" font-family="Arial, Helvetica, sans-serif" font-size="22">Specialization, coordination patterns, and the failure modes to design for.</text>
+</svg>

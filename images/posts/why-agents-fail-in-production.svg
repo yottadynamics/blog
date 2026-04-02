@@ -1,0 +1,40 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">Why Agents Fail in Production cover image</title>
+  <desc id="desc">Abstract cover with broken pipeline and production failure analysis headline.</desc>
+  <defs>
+    <linearGradient id="bg" x1="60" y1="40" x2="1140" y2="590" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#1A0A06"/>
+      <stop offset="1" stop-color="#3A1A08"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="820" y1="72" x2="1060" y2="128" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FB923C"/>
+      <stop offset="1" stop-color="#F87171"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <rect x="54" y="54" width="1092" height="522" rx="28" fill="#1E100A" stroke="#5A2A10" stroke-width="2"/>
+  <!-- Broken pipeline line -->
+  <line x1="108" y1="218" x2="524" y2="218" stroke="#FB923C" stroke-width="4" stroke-dasharray="14 8"/>
+  <line x1="676" y1="218" x2="1092" y2="218" stroke="#F97316" stroke-width="4" stroke-dasharray="14 8"/>
+  <!-- Failure circle with X at the break -->
+  <circle cx="600" cy="218" r="52" fill="#2A1208" stroke="#EF4444" stroke-width="3"/>
+  <line x1="570" y1="188" x2="630" y2="248" stroke="#EF4444" stroke-width="5" stroke-linecap="round"/>
+  <line x1="630" y1="188" x2="570" y2="248" stroke="#EF4444" stroke-width="5" stroke-linecap="round"/>
+  <!-- Nodes along the left segment -->
+  <circle cx="200" cy="218" r="16" fill="#2A1208" stroke="#FB923C" stroke-width="2.5"/>
+  <circle cx="340" cy="218" r="16" fill="#2A1208" stroke="#FB923C" stroke-width="2.5"/>
+  <circle cx="460" cy="218" r="16" fill="#2A1208" stroke="#FBBF24" stroke-width="2.5"/>
+  <!-- Nodes along the right segment -->
+  <circle cx="740" cy="218" r="16" fill="#2A1208" stroke="#F97316" stroke-width="2.5"/>
+  <circle cx="880" cy="218" r="16" fill="#2A1208" stroke="#F97316" stroke-width="2.5"/>
+  <circle cx="1000" cy="218" r="16" fill="#2A1208" stroke="#F97316" stroke-width="2.5"/>
+  <!-- Downward indicators from the failure point -->
+  <line x1="600" y1="270" x2="600" y2="340" stroke="#EF4444" stroke-width="2" stroke-dasharray="6 6"/>
+  <circle cx="600" cy="340" r="8" fill="#EF4444" opacity="0.6"/>
+  <rect x="820" y="72" width="208" height="48" rx="24" fill="url(#accent)"/>
+  <text x="924" y="103" text-anchor="middle" fill="#1A0804" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="700" letter-spacing="1.5">PRODUCTION</text>
+  <text x="104" y="408" fill="#D4804A" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="700" letter-spacing="4">FAILURE ANALYSIS</text>
+  <text x="104" y="466" fill="#FFF8F5" font-family="Arial, Helvetica, sans-serif" font-size="50" font-weight="700">Why Agents Fail</text>
+  <text x="104" y="524" fill="#FFF8F5" font-family="Arial, Helvetica, sans-serif" font-size="50" font-weight="700">in Production</text>
+  <text x="104" y="568" fill="#C07850" font-family="Arial, Helvetica, sans-serif" font-size="22">Non-determinism demands evaluation that traditional QA cannot provide.</text>
+</svg>

@@ -1,0 +1,54 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">The Agent2Agent Protocol cover image</title>
+  <desc id="desc">Abstract cover with two-agent bidirectional protocol diagram and A2A coordination headline.</desc>
+  <defs>
+    <linearGradient id="bg" x1="60" y1="40" x2="1140" y2="590" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#060E1C"/>
+      <stop offset="1" stop-color="#0E2038"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="820" y1="72" x2="1060" y2="128" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#38BDF8"/>
+      <stop offset="1" stop-color="#34D399"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <rect x="54" y="54" width="1092" height="522" rx="28" fill="#080E22" stroke="#1A3058" stroke-width="2"/>
+  <!-- Agent A (left) -->
+  <circle cx="270" cy="215" r="72" fill="#0C1A3A" stroke="#38BDF8" stroke-width="3"/>
+  <text x="270" y="210" text-anchor="middle" fill="#BAE6FD" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="700">AGENT A</text>
+  <text x="270" y="230" text-anchor="middle" fill="#7DD3FC" font-family="Arial, Helvetica, sans-serif" font-size="12">Client</text>
+  <!-- Agent B (right) -->
+  <circle cx="930" cy="215" r="72" fill="#0C1A3A" stroke="#34D399" stroke-width="3"/>
+  <text x="930" y="210" text-anchor="middle" fill="#A7F3D0" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="700">AGENT B</text>
+  <text x="930" y="230" text-anchor="middle" fill="#6EE7B7" font-family="Arial, Helvetica, sans-serif" font-size="12">Remote</text>
+  <!-- Protocol pipe (top arrow: A → B) -->
+  <line x1="342" y1="195" x2="858" y2="195" stroke="#38BDF8" stroke-width="3"/>
+  <polygon points="854,188 870,195 854,202" fill="#38BDF8"/>
+  <!-- Protocol label above top arrow -->
+  <rect x="520" y="168" width="160" height="30" rx="8" fill="#102040"/>
+  <text x="600" y="188" text-anchor="middle" fill="#7DD3FC" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="700">A2A PROTOCOL</text>
+  <!-- Bottom arrow: B → A -->
+  <line x1="858" y1="235" x2="342" y2="235" stroke="#34D399" stroke-width="3"/>
+  <polygon points="346,228 330,235 346,242" fill="#34D399"/>
+  <!-- Task lifecycle dots below -->
+  <circle cx="420" cy="306" r="10" fill="#38BDF8" opacity="0.8"/>
+  <circle cx="510" cy="306" r="10" fill="#60A5FA" opacity="0.7"/>
+  <circle cx="600" cy="306" r="10" fill="#818CF8" opacity="0.7"/>
+  <circle cx="690" cy="306" r="10" fill="#34D399" opacity="0.7"/>
+  <circle cx="780" cy="306" r="10" fill="#10B981" opacity="0.8"/>
+  <line x1="430" y1="306" x2="500" y2="306" stroke="#4A6080" stroke-width="2"/>
+  <line x1="520" y1="306" x2="590" y2="306" stroke="#4A6080" stroke-width="2"/>
+  <line x1="610" y1="306" x2="680" y2="306" stroke="#4A6080" stroke-width="2"/>
+  <line x1="700" y1="306" x2="770" y2="306" stroke="#4A6080" stroke-width="2"/>
+  <text x="420" y="330" text-anchor="middle" fill="#4A8AA0" font-family="Arial, Helvetica, sans-serif" font-size="11">SUBMITTED</text>
+  <text x="510" y="330" text-anchor="middle" fill="#4A8AA0" font-family="Arial, Helvetica, sans-serif" font-size="11">WORKING</text>
+  <text x="600" y="330" text-anchor="middle" fill="#4A8AA0" font-family="Arial, Helvetica, sans-serif" font-size="11">INPUT NEEDED</text>
+  <text x="690" y="330" text-anchor="middle" fill="#4A8AA0" font-family="Arial, Helvetica, sans-serif" font-size="11">COMPLETED</text>
+  <text x="780" y="330" text-anchor="middle" fill="#4A8AA0" font-family="Arial, Helvetica, sans-serif" font-size="11">FAILED</text>
+  <rect x="820" y="72" width="196" height="48" rx="24" fill="url(#accent)"/>
+  <text x="918" y="103" text-anchor="middle" fill="#020810" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="700" letter-spacing="1.5">A2A</text>
+  <text x="104" y="408" fill="#3A7AA0" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="700" letter-spacing="4">A2A PROTOCOL</text>
+  <text x="104" y="466" fill="#F4FAFF" font-family="Arial, Helvetica, sans-serif" font-size="50" font-weight="700">The Agent2Agent Protocol</text>
+  <text x="104" y="524" fill="#F4FAFF" font-family="Arial, Helvetica, sans-serif" font-size="50" font-weight="700">Multi-Agent Systems at Scale</text>
+  <text x="104" y="568" fill="#3A7AA0" font-family="Arial, Helvetica, sans-serif" font-size="22">A standard language for agent discovery, negotiation, and collaboration.</text>
+</svg>

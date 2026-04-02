@@ -1,0 +1,35 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">AI infrastructure projects stall before production cover image</title>
+  <desc id="desc">Abstract cover with staged milestones and production transition headline.</desc>
+  <defs>
+    <linearGradient id="bg" x1="78" y1="42" x2="1108" y2="608" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#12131A"/>
+      <stop offset="1" stop-color="#253049"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="816" y1="72" x2="1056" y2="130" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#C084FC"/>
+      <stop offset="1" stop-color="#F472B6"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <rect x="54" y="54" width="1092" height="522" rx="28" fill="#171A24" stroke="#4A5073" stroke-width="2"/>
+  <path d="M140 270H1048" stroke="#5B628B" stroke-width="4" stroke-dasharray="12 12"/>
+  <circle cx="220" cy="270" r="34" fill="#221F35" stroke="#C084FC" stroke-width="3"/>
+  <circle cx="460" cy="270" r="34" fill="#221F35" stroke="#D8B4FE" stroke-width="3"/>
+  <circle cx="700" cy="270" r="34" fill="#221F35" stroke="#F9A8D4" stroke-width="3"/>
+  <circle cx="940" cy="270" r="34" fill="#221F35" stroke="#F472B6" stroke-width="3"/>
+  <path d="M220 236V176" stroke="#C084FC" stroke-width="4"/>
+  <path d="M460 236V148" stroke="#D8B4FE" stroke-width="4"/>
+  <path d="M700 236V196" stroke="#F9A8D4" stroke-width="4"/>
+  <path d="M940 236V132" stroke="#F472B6" stroke-width="4"/>
+  <rect x="176" y="120" width="88" height="44" rx="12" fill="#31284A"/>
+  <rect x="404" y="92" width="112" height="44" rx="12" fill="#382B54"/>
+  <rect x="640" y="140" width="120" height="44" rx="12" fill="#442B56"/>
+  <rect x="876" y="76" width="128" height="44" rx="12" fill="#4D294F"/>
+  <rect x="816" y="72" width="240" height="54" rx="27" fill="url(#accent)"/>
+  <text x="936" y="106" text-anchor="middle" fill="#220A19" font-family="Arial, Helvetica, sans-serif" font-size="17" font-weight="700" letter-spacing="1.5">AI DELIVERY MODEL</text>
+  <text x="104" y="430" fill="#D3BAF7" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="700" letter-spacing="4">PROTOTYPE TO PRODUCTION</text>
+  <text x="104" y="492" fill="#FEFAFF" font-family="Arial, Helvetica, sans-serif" font-size="50" font-weight="700">Why AI Infrastructure Projects</text>
+  <text x="104" y="550" fill="#FEFAFF" font-family="Arial, Helvetica, sans-serif" font-size="50" font-weight="700">Stall Before Production</text>
+  <text x="104" y="590" fill="#D8BDD1" font-family="Arial, Helvetica, sans-serif" font-size="24">Bad sequencing, missing ownership, and no operating model for production.</text>
+</svg>

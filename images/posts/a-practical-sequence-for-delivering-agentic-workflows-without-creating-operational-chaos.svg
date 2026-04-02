@@ -1,0 +1,32 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">Agentic workflows cover image</title>
+  <desc id="desc">Abstract cover with orchestration nodes and an operations-focused headline.</desc>
+  <defs>
+    <linearGradient id="bg" x1="96" y1="54" x2="1110" y2="590" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#08141F"/>
+      <stop offset="1" stop-color="#11324A"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="844" y1="72" x2="1048" y2="226" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#38BDF8"/>
+      <stop offset="1" stop-color="#22C55E"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <rect x="54" y="54" width="1092" height="522" rx="28" fill="#0B1C2A" stroke="#2A4A60" stroke-width="2"/>
+  <path d="M94 180H1106" stroke="#1F394C" stroke-width="2" stroke-dasharray="8 10"/>
+  <path d="M94 450H1106" stroke="#1F394C" stroke-width="2" stroke-dasharray="8 10"/>
+  <path d="M230 146L314 230L230 314L146 230L230 146Z" fill="#10283A" stroke="#38BDF8" stroke-width="3"/>
+  <path d="M600 120L700 220L600 320L500 220L600 120Z" fill="#112E40" stroke="#7DD3FC" stroke-width="3"/>
+  <path d="M970 146L1054 230L970 314L886 230L970 146Z" fill="#10283A" stroke="#22C55E" stroke-width="3"/>
+  <path d="M314 230H500" stroke="#38BDF8" stroke-width="4"/>
+  <path d="M700 230H886" stroke="#4ADE80" stroke-width="4"/>
+  <circle cx="230" cy="230" r="20" fill="#38BDF8"/>
+  <circle cx="600" cy="220" r="24" fill="#7DD3FC"/>
+  <circle cx="970" cy="230" r="20" fill="#22C55E"/>
+  <rect x="844" y="72" width="204" height="54" rx="27" fill="url(#accent)"/>
+  <text x="946" y="106" text-anchor="middle" fill="#04111A" font-family="Arial, Helvetica, sans-serif" font-size="17" font-weight="700" letter-spacing="1.5">TECHNICAL NOTES</text>
+  <text x="104" y="390" fill="#9CC5DA" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="700" letter-spacing="4">AGENTIC WORKFLOWS</text>
+  <text x="104" y="452" fill="#F8FCFF" font-family="Arial, Helvetica, sans-serif" font-size="50" font-weight="700">Delivering Agentic Workflows</text>
+  <text x="104" y="510" fill="#F8FCFF" font-family="Arial, Helvetica, sans-serif" font-size="50" font-weight="700">Without Operational Chaos</text>
+  <text x="104" y="556" fill="#84A9BD" font-family="Arial, Helvetica, sans-serif" font-size="24">State, retries, approvals, telemetry, and phased rollout discipline.</text>
+</svg>

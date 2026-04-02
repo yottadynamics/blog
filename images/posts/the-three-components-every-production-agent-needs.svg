@@ -1,0 +1,39 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">Three production agent components cover image</title>
+  <desc id="desc">Abstract cover with model-tools-orchestration component blocks and architecture headline.</desc>
+  <defs>
+    <linearGradient id="bg" x1="60" y1="40" x2="1140" y2="590" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#080E1A"/>
+      <stop offset="1" stop-color="#152040"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="820" y1="72" x2="1060" y2="128" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#60A5FA"/>
+      <stop offset="1" stop-color="#818CF8"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <rect x="54" y="54" width="1092" height="522" rx="28" fill="#0C1628" stroke="#243654" stroke-width="2"/>
+  <!-- Three component blocks in sequence -->
+  <rect x="108" y="148" width="240" height="88" rx="14" fill="#0F213A" stroke="#60A5FA" stroke-width="2.5"/>
+  <rect x="480" y="148" width="240" height="88" rx="14" fill="#0F213A" stroke="#93C5FD" stroke-width="2.5"/>
+  <rect x="852" y="148" width="240" height="88" rx="14" fill="#0F213A" stroke="#818CF8" stroke-width="2.5"/>
+  <text x="228" y="197" text-anchor="middle" fill="#BFDBFE" font-family="Arial, Helvetica, sans-serif" font-size="20" font-weight="700">MODEL</text>
+  <text x="600" y="197" text-anchor="middle" fill="#BFDBFE" font-family="Arial, Helvetica, sans-serif" font-size="20" font-weight="700">TOOLS</text>
+  <text x="972" y="197" text-anchor="middle" fill="#BFDBFE" font-family="Arial, Helvetica, sans-serif" font-size="20" font-weight="700">ORCHESTRATION</text>
+  <!-- Arrows between blocks -->
+  <line x1="348" y1="192" x2="476" y2="192" stroke="#60A5FA" stroke-width="3"/>
+  <polygon points="480,185 494,192 480,199" fill="#60A5FA"/>
+  <line x1="720" y1="192" x2="848" y2="192" stroke="#93C5FD" stroke-width="3"/>
+  <polygon points="852,185 866,192 852,199" fill="#93C5FD"/>
+  <!-- Feedback loop arc below blocks -->
+  <path d="M228 236 Q228 310 600 322 Q972 310 972 236" stroke="#2A3E60" stroke-width="2" stroke-dasharray="8 10" fill="none"/>
+  <!-- Subtle connector dots at arc ends -->
+  <circle cx="228" cy="236" r="5" fill="#3B5580"/>
+  <circle cx="972" cy="236" r="5" fill="#3B5580"/>
+  <rect x="820" y="72" width="212" height="48" rx="24" fill="url(#accent)"/>
+  <text x="926" y="103" text-anchor="middle" fill="#040C1A" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="700" letter-spacing="1.5">ARCHITECTURE</text>
+  <text x="104" y="408" fill="#7AAED8" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="700" letter-spacing="4">AGENT ARCHITECTURE</text>
+  <text x="104" y="466" fill="#F8FCFF" font-family="Arial, Helvetica, sans-serif" font-size="50" font-weight="700">The Three Components</text>
+  <text x="104" y="524" fill="#F8FCFF" font-family="Arial, Helvetica, sans-serif" font-size="50" font-weight="700">Every Production Agent Needs</text>
+  <text x="104" y="568" fill="#7AAED8" font-family="Arial, Helvetica, sans-serif" font-size="22">Model selection, tool design, and orchestration are distinct problems.</text>
+</svg>

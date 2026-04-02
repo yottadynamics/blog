@@ -1,0 +1,37 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">Custom Golang control plane cover image</title>
+  <desc id="desc">Abstract cover with service panels, API routes, and platform automation headline.</desc>
+  <defs>
+    <linearGradient id="bg" x1="78" y1="42" x2="1108" y2="608" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0F1120"/>
+      <stop offset="1" stop-color="#1B3556"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="804" y1="72" x2="1062" y2="130" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#60A5FA"/>
+      <stop offset="1" stop-color="#34D399"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <rect x="54" y="54" width="1092" height="522" rx="28" fill="#15182B" stroke="#34557A" stroke-width="2"/>
+  <rect x="116" y="122" width="236" height="180" rx="20" fill="#1B2137" stroke="#60A5FA" stroke-width="3"/>
+  <rect x="402" y="122" width="396" height="180" rx="20" fill="#182536" stroke="#93C5FD" stroke-width="3"/>
+  <rect x="848" y="122" width="236" height="180" rx="20" fill="#182833" stroke="#34D399" stroke-width="3"/>
+  <path d="M352 212H402" stroke="#60A5FA" stroke-width="4"/>
+  <path d="M798 212H848" stroke="#34D399" stroke-width="4"/>
+  <path d="M220 352V430H964V352" stroke="#4BA3C9" stroke-width="4"/>
+  <circle cx="220" cy="352" r="16" fill="#60A5FA"/>
+  <circle cx="592" cy="430" r="16" fill="#93C5FD"/>
+  <circle cx="964" cy="352" r="16" fill="#34D399"/>
+  <path d="M164 176H304" stroke="#4B6585" stroke-width="6" stroke-linecap="round"/>
+  <path d="M164 214H284" stroke="#4B6585" stroke-width="6" stroke-linecap="round"/>
+  <path d="M450 176H750" stroke="#516C8C" stroke-width="6" stroke-linecap="round"/>
+  <path d="M450 214H710" stroke="#516C8C" stroke-width="6" stroke-linecap="round"/>
+  <path d="M896 176H1036" stroke="#4B6585" stroke-width="6" stroke-linecap="round"/>
+  <path d="M896 214H1016" stroke="#4B6585" stroke-width="6" stroke-linecap="round"/>
+  <rect x="804" y="72" width="258" height="54" rx="27" fill="url(#accent)"/>
+  <text x="933" y="106" text-anchor="middle" fill="#09111A" font-family="Arial, Helvetica, sans-serif" font-size="17" font-weight="700" letter-spacing="1.5">CONTROL PLANE DESIGN</text>
+  <text x="104" y="482" fill="#A9C7EA" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="700" letter-spacing="4">GOLANG PLATFORM API</text>
+  <text x="104" y="534" fill="#F7FBFF" font-family="Arial, Helvetica, sans-serif" font-size="42" font-weight="700">When a Custom Golang</text>
+  <text x="104" y="584" fill="#F7FBFF" font-family="Arial, Helvetica, sans-serif" font-size="42" font-weight="700">Control Plane or Backend API</text>
+  <text x="104" y="616" fill="#F7FBFF" font-family="Arial, Helvetica, sans-serif" font-size="42" font-weight="700">Is the Right Move</text>
+</svg>

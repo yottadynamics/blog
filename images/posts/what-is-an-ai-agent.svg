@@ -1,0 +1,32 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">What Is an AI Agent cover image</title>
+  <desc id="desc">Abstract cover with think-act-observe loop nodes and agent taxonomy headline.</desc>
+  <defs>
+    <linearGradient id="bg" x1="60" y1="40" x2="1140" y2="590" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0F1020"/>
+      <stop offset="1" stop-color="#261848"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="820" y1="72" x2="1060" y2="128" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#818CF8"/>
+      <stop offset="1" stop-color="#C084FC"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <rect x="54" y="54" width="1092" height="522" rx="28" fill="#121230" stroke="#353070" stroke-width="2"/>
+  <!-- Think-Act-Observe triangle of nodes -->
+  <circle cx="600" cy="148" r="46" fill="#1C1A42" stroke="#818CF8" stroke-width="3"/>
+  <circle cx="334" cy="308" r="46" fill="#1C1A42" stroke="#A78BFA" stroke-width="3"/>
+  <circle cx="866" cy="308" r="46" fill="#1C1A42" stroke="#C084FC" stroke-width="3"/>
+  <line x1="567" y1="170" x2="367" y2="287" stroke="#6366F1" stroke-width="3" stroke-dasharray="10 8"/>
+  <line x1="380" y1="308" x2="820" y2="308" stroke="#8B5CF6" stroke-width="3" stroke-dasharray="10 8"/>
+  <line x1="833" y1="287" x2="633" y2="170" stroke="#A855F7" stroke-width="3" stroke-dasharray="10 8"/>
+  <text x="600" y="153" text-anchor="middle" fill="#C4B5FD" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="700">THINK</text>
+  <text x="334" y="313" text-anchor="middle" fill="#C4B5FD" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="700">OBSERVE</text>
+  <text x="866" y="313" text-anchor="middle" fill="#C4B5FD" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="700">ACT</text>
+  <rect x="820" y="72" width="208" height="48" rx="24" fill="url(#accent)"/>
+  <text x="924" y="103" text-anchor="middle" fill="#0A0820" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="700" letter-spacing="1.5">AI AGENTS</text>
+  <text x="104" y="408" fill="#A09ADB" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="700" letter-spacing="4">AGENT TAXONOMY</text>
+  <text x="104" y="466" fill="#FAFAFF" font-family="Arial, Helvetica, sans-serif" font-size="50" font-weight="700">What Is an AI Agent,</text>
+  <text x="104" y="524" fill="#FAFAFF" font-family="Arial, Helvetica, sans-serif" font-size="50" font-weight="700">Really?</text>
+  <text x="104" y="568" fill="#A09AC8" font-family="Arial, Helvetica, sans-serif" font-size="22">Model, tools, orchestration — and a loop until the goal is reached.</text>
+</svg>

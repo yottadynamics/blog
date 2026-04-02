@@ -1,0 +1,37 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">Day 2 Kubernetes operations cover image</title>
+  <desc id="desc">Abstract cover with cluster nodes, upgrade loops, and operations-focused headline.</desc>
+  <defs>
+    <linearGradient id="bg" x1="78" y1="42" x2="1108" y2="608" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#051926"/>
+      <stop offset="1" stop-color="#0D3D54"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="796" y1="72" x2="1062" y2="130" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#22D3EE"/>
+      <stop offset="1" stop-color="#A3E635"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <rect x="54" y="54" width="1092" height="522" rx="28" fill="#082231" stroke="#26607A" stroke-width="2"/>
+  <circle cx="270" cy="218" r="48" fill="#0F3348" stroke="#22D3EE" stroke-width="3"/>
+  <circle cx="430" cy="154" r="48" fill="#0F3348" stroke="#67E8F9" stroke-width="3"/>
+  <circle cx="430" cy="282" r="48" fill="#0F3348" stroke="#67E8F9" stroke-width="3"/>
+  <circle cx="590" cy="218" r="48" fill="#0F3348" stroke="#A3E635" stroke-width="3"/>
+  <circle cx="750" cy="154" r="48" fill="#0F3348" stroke="#BEF264" stroke-width="3"/>
+  <circle cx="750" cy="282" r="48" fill="#0F3348" stroke="#BEF264" stroke-width="3"/>
+  <circle cx="910" cy="218" r="48" fill="#0F3348" stroke="#22D3EE" stroke-width="3"/>
+  <path d="M318 218H382" stroke="#3DD5F3" stroke-width="4"/>
+  <path d="M478 154H542" stroke="#7CE7F5" stroke-width="4"/>
+  <path d="M478 282H542" stroke="#7CE7F5" stroke-width="4"/>
+  <path d="M638 218H702" stroke="#A3E635" stroke-width="4"/>
+  <path d="M798 154H862" stroke="#BEF264" stroke-width="4"/>
+  <path d="M798 282H862" stroke="#BEF264" stroke-width="4"/>
+  <path d="M270 382C270 332 350 332 350 382C350 432 270 432 270 382Z" stroke="#22D3EE" stroke-width="4"/>
+  <path d="M850 382C850 332 930 332 930 382C930 432 850 432 850 382Z" stroke="#A3E635" stroke-width="4"/>
+  <path d="M350 382H850" stroke="#4EAAC6" stroke-width="4" stroke-dasharray="10 10"/>
+  <rect x="796" y="72" width="266" height="54" rx="27" fill="url(#accent)"/>
+  <text x="929" y="106" text-anchor="middle" fill="#071A10" font-family="Arial, Helvetica, sans-serif" font-size="17" font-weight="700" letter-spacing="1.25">KUBERNETES OPERATIONS</text>
+  <text x="104" y="468" fill="#8FD8EC" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="700" letter-spacing="4">DAY 2 DISCIPLINE</text>
+  <text x="104" y="530" fill="#F4FEFF" font-family="Arial, Helvetica, sans-serif" font-size="50" font-weight="700">What Good Day 2 Kubernetes</text>
+  <text x="104" y="588" fill="#F4FEFF" font-family="Arial, Helvetica, sans-serif" font-size="50" font-weight="700">Operations Actually Require</text>
+</svg>

@@ -1,0 +1,51 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">Observability for AI Agents cover image</title>
+  <desc id="desc">Abstract cover with signal histogram timeline and observability operations headline.</desc>
+  <defs>
+    <linearGradient id="bg" x1="60" y1="40" x2="1140" y2="590" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#04141A"/>
+      <stop offset="1" stop-color="#0A2C3A"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="820" y1="72" x2="1060" y2="128" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#22D3EE"/>
+      <stop offset="1" stop-color="#34D399"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <rect x="54" y="54" width="1092" height="522" rx="28" fill="#061820" stroke="#1A4050" stroke-width="2"/>
+  <!-- Baseline -->
+  <line x1="100" y1="318" x2="1100" y2="318" stroke="#1A4050" stroke-width="2"/>
+  <!-- Signal bars (varying heights — logs/traces/metrics columns) -->
+  <rect x="118" y="238" width="28" height="80" rx="4" fill="#22D3EE" opacity="0.7"/>
+  <rect x="162" y="278" width="28" height="40" rx="4" fill="#22D3EE" opacity="0.5"/>
+  <rect x="206" y="198" width="28" height="120" rx="4" fill="#22D3EE" opacity="0.8"/>
+  <rect x="250" y="258" width="28" height="60" rx="4" fill="#22D3EE" opacity="0.55"/>
+  <!-- Gap / group separator -->
+  <rect x="338" y="168" width="28" height="150" rx="4" fill="#06B6D4" opacity="0.9"/>
+  <rect x="382" y="218" width="28" height="100" rx="4" fill="#06B6D4" opacity="0.7"/>
+  <rect x="426" y="248" width="28" height="70" rx="4" fill="#06B6D4" opacity="0.6"/>
+  <rect x="470" y="188" width="28" height="130" rx="4" fill="#06B6D4" opacity="0.8"/>
+  <rect x="514" y="228" width="28" height="90" rx="4" fill="#06B6D4" opacity="0.65"/>
+  <!-- Gap -->
+  <rect x="602" y="148" width="28" height="170" rx="4" fill="#34D399" opacity="0.9"/>
+  <rect x="646" y="208" width="28" height="110" rx="4" fill="#34D399" opacity="0.75"/>
+  <rect x="690" y="238" width="28" height="80" rx="4" fill="#34D399" opacity="0.6"/>
+  <rect x="734" y="178" width="28" height="140" rx="4" fill="#34D399" opacity="0.85"/>
+  <!-- Gap -->
+  <rect x="822" y="218" width="28" height="100" rx="4" fill="#22D3EE" opacity="0.7"/>
+  <rect x="866" y="258" width="28" height="60" rx="4" fill="#22D3EE" opacity="0.55"/>
+  <rect x="910" y="188" width="28" height="130" rx="4" fill="#22D3EE" opacity="0.8"/>
+  <rect x="954" y="238" width="28" height="80" rx="4" fill="#22D3EE" opacity="0.6"/>
+  <rect x="998" y="208" width="28" height="110" rx="4" fill="#22D3EE" opacity="0.72"/>
+  <!-- Group labels below baseline -->
+  <text x="200" y="340" text-anchor="middle" fill="#22D3EE" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="700" opacity="0.7">LOGS</text>
+  <text x="426" y="340" text-anchor="middle" fill="#06B6D4" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="700" opacity="0.7">TRACES</text>
+  <text x="668" y="340" text-anchor="middle" fill="#34D399" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="700" opacity="0.7">METRICS</text>
+  <text x="910" y="340" text-anchor="middle" fill="#22D3EE" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="700" opacity="0.7">ALERTS</text>
+  <rect x="820" y="72" width="212" height="48" rx="24" fill="url(#accent)"/>
+  <text x="926" y="103" text-anchor="middle" fill="#021014" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="700" letter-spacing="1.5">OBSERVABILITY</text>
+  <text x="104" y="408" fill="#4AACBC" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="700" letter-spacing="4">OPERATIONS</text>
+  <text x="104" y="466" fill="#F0FEFF" font-family="Arial, Helvetica, sans-serif" font-size="50" font-weight="700">Observability</text>
+  <text x="104" y="524" fill="#F0FEFF" font-family="Arial, Helvetica, sans-serif" font-size="50" font-weight="700">for AI Agents</text>
+  <text x="104" y="568" fill="#4AACBC" font-family="Arial, Helvetica, sans-serif" font-size="22">Logs, traces, and metrics that tell you whether it is reasoning correctly.</text>
+</svg>
