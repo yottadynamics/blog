@@ -3,89 +3,85 @@
   <desc id="desc">Abstract cover showing the think-act-observe loop cycle for AI agents.</desc>
   <defs>
     <linearGradient id="bg" x1="0" y1="0" x2="1200" y2="630" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#050F1A"/>
-      <stop offset="1" stop-color="#0A2A3D"/>
+      <stop stop-color="#0D0518"/>
+      <stop offset="1" stop-color="#1A0A35"/>
     </linearGradient>
     <linearGradient id="accent" x1="796" y1="72" x2="1062" y2="130" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#22D3EE"/>
-      <stop offset="1" stop-color="#A3E635"/>
+      <stop stop-color="#A855F7"/>
+      <stop offset="1" stop-color="#E879F9"/>
     </linearGradient>
   </defs>
 
   <rect width="1200" height="630" fill="url(#bg)"/>
-  <rect x="54" y="54" width="1092" height="522" rx="28" fill="#071824" stroke="#1A4F6A" stroke-width="2"/>
+  <rect x="54" y="54" width="1092" height="522" rx="28" fill="#110820" stroke="#3B1A5C" stroke-width="2"/>
 
-  <!-- Loop cycle: 4 nodes arranged in a rectangle -->
-  <!-- Perceive (top-left) -->
-  <rect x="104" y="100" width="180" height="90" rx="12" fill="#0F3348" stroke="#22D3EE" stroke-width="2"/>
-  <text x="194" y="138" text-anchor="middle" fill="#22D3EE" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="700">PERCEIVE</text>
-  <text x="194" y="160" text-anchor="middle" fill="#4EAAC6" font-family="Arial, Helvetica, sans-serif" font-size="11">Context + inputs</text>
+  <!-- Loop cycle: 4 nodes -->
+  <!-- Perceive -->
+  <rect x="104" y="100" width="180" height="90" rx="12" fill="#1E0D38" stroke="#A855F7" stroke-width="2"/>
+  <text x="194" y="138" text-anchor="middle" fill="#A855F7" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="700">PERCEIVE</text>
+  <text x="194" y="160" text-anchor="middle" fill="#7C4FA8" font-family="Arial, Helvetica, sans-serif" font-size="11">Context + inputs</text>
 
-  <!-- Reason (top-right) -->
-  <rect x="380" y="100" width="180" height="90" rx="12" fill="#0F3348" stroke="#67E8F9" stroke-width="2"/>
-  <text x="470" y="138" text-anchor="middle" fill="#67E8F9" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="700">REASON</text>
-  <text x="470" y="160" text-anchor="middle" fill="#4EAAC6" font-family="Arial, Helvetica, sans-serif" font-size="11">Plan next action</text>
+  <!-- Reason -->
+  <rect x="380" y="100" width="180" height="90" rx="12" fill="#1E0D38" stroke="#C084FC" stroke-width="2"/>
+  <text x="470" y="138" text-anchor="middle" fill="#C084FC" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="700">REASON</text>
+  <text x="470" y="160" text-anchor="middle" fill="#7C4FA8" font-family="Arial, Helvetica, sans-serif" font-size="11">Plan next action</text>
 
-  <!-- Act (bottom-right) -->
-  <rect x="380" y="270" width="180" height="90" rx="12" fill="#0F3348" stroke="#A3E635" stroke-width="2"/>
-  <text x="470" y="308" text-anchor="middle" fill="#A3E635" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="700">ACT</text>
-  <text x="470" y="330" text-anchor="middle" fill="#8CC432" font-family="Arial, Helvetica, sans-serif" font-size="11">Call a tool</text>
+  <!-- Act -->
+  <rect x="380" y="270" width="180" height="90" rx="12" fill="#1E0D38" stroke="#E879F9" stroke-width="2"/>
+  <text x="470" y="308" text-anchor="middle" fill="#E879F9" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="700">ACT</text>
+  <text x="470" y="330" text-anchor="middle" fill="#A855C8" font-family="Arial, Helvetica, sans-serif" font-size="11">Call a tool</text>
 
-  <!-- Observe (bottom-left) -->
-  <rect x="104" y="270" width="180" height="90" rx="12" fill="#0F3348" stroke="#BEF264" stroke-width="2"/>
-  <text x="194" y="308" text-anchor="middle" fill="#BEF264" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="700">OBSERVE</text>
-  <text x="194" y="330" text-anchor="middle" fill="#8CC432" font-family="Arial, Helvetica, sans-serif" font-size="11">Update context</text>
+  <!-- Observe -->
+  <rect x="104" y="270" width="180" height="90" rx="12" fill="#1E0D38" stroke="#F0ABFC" stroke-width="2"/>
+  <text x="194" y="308" text-anchor="middle" fill="#F0ABFC" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="700">OBSERVE</text>
+  <text x="194" y="330" text-anchor="middle" fill="#A855C8" font-family="Arial, Helvetica, sans-serif" font-size="11">Update context</text>
 
   <!-- Arrows -->
-  <!-- Perceive → Reason (top) -->
-  <line x1="284" y1="145" x2="380" y2="145" stroke="#22D3EE" stroke-width="3"/>
-  <polygon points="376,139 390,145 376,151" fill="#22D3EE"/>
+  <line x1="284" y1="145" x2="380" y2="145" stroke="#A855F7" stroke-width="3"/>
+  <polygon points="376,139 390,145 376,151" fill="#A855F7"/>
 
-  <!-- Reason → Act (right side) -->
-  <line x1="470" y1="190" x2="470" y2="270" stroke="#67E8F9" stroke-width="3"/>
-  <polygon points="464,266 470,280 476,266" fill="#67E8F9"/>
+  <line x1="470" y1="190" x2="470" y2="270" stroke="#C084FC" stroke-width="3"/>
+  <polygon points="464,266 470,280 476,266" fill="#C084FC"/>
 
-  <!-- Act → Observe (bottom) -->
-  <line x1="380" y1="315" x2="284" y2="315" stroke="#A3E635" stroke-width="3"/>
-  <polygon points="288,309 274,315 288,321" fill="#A3E635"/>
+  <line x1="380" y1="315" x2="284" y2="315" stroke="#E879F9" stroke-width="3"/>
+  <polygon points="288,309 274,315 288,321" fill="#E879F9"/>
 
-  <!-- Observe → Perceive (left side) -->
-  <line x1="194" y1="270" x2="194" y2="190" stroke="#BEF264" stroke-width="3"/>
-  <polygon points="188,194 194,180 200,194" fill="#BEF264"/>
+  <line x1="194" y1="270" x2="194" y2="190" stroke="#F0ABFC" stroke-width="3"/>
+  <polygon points="188,194 194,180 200,194" fill="#F0ABFC"/>
 
   <!-- Loop label -->
-  <text x="337" y="222" text-anchor="middle" fill="#3DD5F3" font-family="Arial, Helvetica, sans-serif" font-size="11" font-weight="600">loops until</text>
-  <text x="337" y="238" text-anchor="middle" fill="#3DD5F3" font-family="Arial, Helvetica, sans-serif" font-size="11" font-weight="600">goal achieved</text>
+  <text x="337" y="222" text-anchor="middle" fill="#9B6DBD" font-family="Arial, Helvetica, sans-serif" font-size="11" font-weight="600">loops until</text>
+  <text x="337" y="238" text-anchor="middle" fill="#9B6DBD" font-family="Arial, Helvetica, sans-serif" font-size="11" font-weight="600">goal achieved</text>
 
-  <!-- Autonomy levels (right side) -->
-  <text x="660" y="108" fill="#4EAAC6" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="700" letter-spacing="1">AUTONOMY LEVELS</text>
+  <!-- Autonomy levels -->
+  <text x="660" y="108" fill="#7C4FA8" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="700" letter-spacing="1">AUTONOMY LEVELS</text>
 
-  <rect x="656" y="122" width="420" height="36" rx="6" fill="#0D2030" stroke="#22D3EE" stroke-width="1.5"/>
-  <text x="672" y="145" fill="#22D3EE" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="700">L0</text>
-  <text x="700" y="145" fill="#8FD8EC" font-family="Arial, Helvetica, sans-serif" font-size="12">Pure reasoning — model only, no tools</text>
+  <rect x="656" y="122" width="420" height="36" rx="6" fill="#160828" stroke="#A855F7" stroke-width="1.5"/>
+  <text x="672" y="145" fill="#A855F7" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="700">L0</text>
+  <text x="700" y="145" fill="#C8A8E0" font-family="Arial, Helvetica, sans-serif" font-size="12">Pure reasoning — model only, no tools</text>
 
-  <rect x="656" y="166" width="420" height="36" rx="6" fill="#0D2030" stroke="#67E8F9" stroke-width="1.5"/>
-  <text x="672" y="189" fill="#67E8F9" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="700">L1</text>
-  <text x="700" y="189" fill="#8FD8EC" font-family="Arial, Helvetica, sans-serif" font-size="12">Connected — most production agents live here</text>
+  <rect x="656" y="166" width="420" height="36" rx="6" fill="#160828" stroke="#C084FC" stroke-width="1.5"/>
+  <text x="672" y="189" fill="#C084FC" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="700">L1</text>
+  <text x="700" y="189" fill="#C8A8E0" font-family="Arial, Helvetica, sans-serif" font-size="12">Connected — most production agents live here</text>
 
-  <rect x="656" y="210" width="420" height="36" rx="6" fill="#0D2030" stroke="#A3E635" stroke-width="1.5"/>
-  <text x="672" y="233" fill="#A3E635" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="700">L2</text>
-  <text x="700" y="233" fill="#8FD8EC" font-family="Arial, Helvetica, sans-serif" font-size="12">Strategic — multi-step planning</text>
+  <rect x="656" y="210" width="420" height="36" rx="6" fill="#160828" stroke="#E879F9" stroke-width="1.5"/>
+  <text x="672" y="233" fill="#E879F9" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="700">L2</text>
+  <text x="700" y="233" fill="#C8A8E0" font-family="Arial, Helvetica, sans-serif" font-size="12">Strategic — multi-step planning</text>
 
-  <rect x="656" y="254" width="420" height="36" rx="6" fill="#0D2030" stroke="#BEF264" stroke-width="1.5"/>
-  <text x="672" y="277" fill="#BEF264" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="700">L3</text>
-  <text x="700" y="277" fill="#8FD8EC" font-family="Arial, Helvetica, sans-serif" font-size="12">Collaborative — multi-agent orchestration</text>
+  <rect x="656" y="254" width="420" height="36" rx="6" fill="#160828" stroke="#F0ABFC" stroke-width="1.5"/>
+  <text x="672" y="277" fill="#F0ABFC" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="700">L3</text>
+  <text x="700" y="277" fill="#C8A8E0" font-family="Arial, Helvetica, sans-serif" font-size="12">Collaborative — multi-agent orchestration</text>
 
-  <rect x="656" y="298" width="420" height="36" rx="6" fill="#0D2030" stroke="#4EAAC6" stroke-width="1"/>
-  <text x="672" y="321" fill="#4EAAC6" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="700">L4</text>
-  <text x="700" y="321" fill="#6BA8C0" font-family="Arial, Helvetica, sans-serif" font-size="12">Self-evolving — largely research</text>
+  <rect x="656" y="298" width="420" height="36" rx="6" fill="#160828" stroke="#7C4FA8" stroke-width="1"/>
+  <text x="672" y="321" fill="#7C4FA8" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="700">L4</text>
+  <text x="700" y="321" fill="#9B70B8" font-family="Arial, Helvetica, sans-serif" font-size="12">Self-evolving — largely research</text>
 
   <!-- Accent badge -->
   <rect x="796" y="72" width="244" height="46" rx="23" fill="url(#accent)"/>
-  <text x="918" y="101" text-anchor="middle" fill="#071824" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="700" letter-spacing="1.5">PART 1 OF 2</text>
+  <text x="918" y="101" text-anchor="middle" fill="#0D0518" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="700" letter-spacing="1.5">PART 1 OF 2</text>
 
   <!-- Main headline -->
-  <text x="104" y="420" fill="#8FD8EC" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="700" letter-spacing="4">PRACTICAL GUIDE FOR BUILDERS</text>
-  <text x="104" y="488" fill="#F4FEFF" font-family="Arial, Helvetica, sans-serif" font-size="46" font-weight="700">What Is an</text>
-  <text x="104" y="548" fill="#F4FEFF" font-family="Arial, Helvetica, sans-serif" font-size="46" font-weight="700">AI Agent?</text>
+  <text x="104" y="420" fill="#9B6DBD" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="700" letter-spacing="4">PRACTICAL GUIDE FOR BUILDERS</text>
+  <text x="104" y="488" fill="#F4EEFF" font-family="Arial, Helvetica, sans-serif" font-size="46" font-weight="700">What Is an</text>
+  <text x="104" y="548" fill="#F4EEFF" font-family="Arial, Helvetica, sans-serif" font-size="46" font-weight="700">AI Agent?</text>
 </svg>
