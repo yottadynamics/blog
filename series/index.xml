@@ -1,1 +1,1253 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/"><channel><title>Series on YottaDynamics Technical Notes</title><link>https://blog.yottadynamics.com/series/</link><description>Recent content in Series on YottaDynamics Technical Notes</description><generator>Hugo</generator><language>en-us</language><lastBuildDate>Mon, 06 Apr 2026 10:00:00 -0400</lastBuildDate><atom:link href="https://blog.yottadynamics.com/series/index.xml" rel="self" type="application/rss+xml"/><item><title>AI Agents in Production</title><link>https://blog.yottadynamics.com/series/ai-agents-in-production/</link><pubDate>Mon, 06 Apr 2026 10:00:00 -0400</pubDate><guid>https://blog.yottadynamics.com/series/ai-agents-in-production/</guid><description>Ten posts on building, evaluating, and operating AI agent systems at production scale — from the Google/Kaggle AI Agents whitepaper series.</description></item><item><title>Enterprise ML Infrastructure</title><link>https://blog.yottadynamics.com/series/enterprise-ml-infrastructure/</link><pubDate>Mon, 06 Apr 2026 09:00:00 -0400</pubDate><guid>https://blog.yottadynamics.com/series/enterprise-ml-infrastructure/</guid><description/></item></channel></rss>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/"><channel><title>YottaDynamics Technical Notes</title><link>https://blog.yottadynamics.com/</link><description>Technical notes on AI infrastructure, Kubernetes operations, and platform engineering.</description><generator>Hugo</generator><language>en-us</language><lastBuildDate>Tue, 07 Apr 2026 20:04:12 +0000</lastBuildDate><atom:link href="https://blog.yottadynamics.com/series/index.xml" rel="self" type="application/rss+xml"/><item><title>AI Agent Architecture: Memory, Tools, Orchestration, and Production</title><link>https://blog.yottadynamics.com/posts/ai-agent-architecture-memory-tools-orchestration/</link><pubDate>Mon, 06 Apr 2026 10:00:00 -0400</pubDate><guid>https://blog.yottadynamics.com/posts/ai-agent-architecture-memory-tools-orchestration/</guid><description>Most &amp;lsquo;my agent broke&amp;rsquo; investigations don&amp;rsquo;t end at the model. They end in memory design, tool scope, orchestration logic, or missing observability. This post covers the plumbing that actually determines whether an agent works in production.</description><category>ai-agents</category><category>architecture</category><category>operations</category><category>ai-infrastructure</category><category>observability</category><enclosure url="https://blog.yottadynamics.com/images/posts/ai-agent-architecture-memory-tools-orchestration.svg" type="image/svg+xml"/><content:encoded><![CDATA[<p>In <a href="/posts/what-is-an-ai-agent-a-practical-guide/">Part 1</a> we covered what an AI agent is, how it differs from chatbots and copilots, and how to match autonomy level to the task. This post goes deeper — into the plumbing that actually determines whether an agent works in production.</p>
+<p>Most &ldquo;my agent broke&rdquo; investigations don&rsquo;t end at the model. They end in memory design, tool scope, orchestration logic, or missing observability. That&rsquo;s what this post is about.</p>
+<hr>
+<h2 id="orchestration-patterns-the-architectures-that-drive-agent-behavior">Orchestration Patterns: The Architectures That Drive Agent Behavior</h2>
+<p>Orchestration is not a single technique. It&rsquo;s a family of patterns — each with distinct trade-offs in reliability, cost, latency, and debuggability. Choosing the right one is a foundational architectural decision.</p>
+<h3 id="react-reason--act">ReAct (Reason + Act)</h3>
+<p>ReAct is the most widely deployed orchestration pattern. At each loop iteration, the model generates a thought (explicit reasoning about what to do next), selects an action (a tool call with parameters), observes the result, and updates its context before the next iteration.</p>
+<pre tabindex="0"><code>┌──────────┐     ┌──────────┐     ┌─────────────┐
+│  Thought │────▶│  Action  │────▶│ Observation │
+│          │     │          │     │             │
+│ Reason   │     │ Tool call│     │ Result +    │
+│ about    │     │ with     │     │ context     │
+│ next step│     │ params   │     │ update      │
+└──────────┘     └──────────┘     └──────┬──────┘
+      ▲                                  │
+      └──────────────────────────────────┘
+              repeat until terminal
+</code></pre><p>The tight thought-action-observation cycle makes the model&rsquo;s reasoning auditable — you can trace exactly why it chose each tool call. This is its primary advantage for debugging.</p>
+<p>The trade-off: ReAct is expensive. Every iteration requires a full model call. Long tasks accumulate latency and token cost linearly. It also assumes the model can plan one step ahead effectively. When tasks require reasoning ten iterations out, single-step reasoning degrades and the agent begins making locally reasonable but globally suboptimal decisions.</p>
+<h3 id="chain-of-thought-cot-planning">Chain-of-Thought (CoT) Planning</h3>
+<p>CoT separates planning from execution. The model produces an explicit multi-step plan before taking any action. Orchestration then executes that plan sequentially, feeding results back as observations.</p>
+<pre tabindex="0"><code>┌─────────────────────────────────┐
+│         Planning phase          │
+│                                 │
+│  Model generates full plan      │
+│  before any tool is called      │
+│                                 │
+│  Step 1: fetch customer record  │
+│  Step 2: check order history    │
+│  Step 3: calculate refund       │
+│  Step 4: send confirmation      │
+└────────────────┬────────────────┘
+                 │ optional: human review here
+                 ▼
+┌─────────────────────────────────┐
+│         Execution phase         │
+│                                 │
+│  Orchestration executes steps   │
+│  sequentially, feeds results    │
+│  back as observations           │
+└─────────────────────────────────┘
+</code></pre><p>The advantage: planning upfront reduces model calls during execution, lowers cost, and creates a natural checkpoint for human review before any action fires.</p>
+<p>The limitation: the upfront plan is static. If early tool calls return unexpected results, a pure CoT agent has no mechanism to revise mid-execution. In dynamic environments — where APIs fail, data is missing, or results differ from expectations — rigid plans break down. The fix is hybrid orchestration: plan upfront, but re-enter a ReAct loop whenever observations deviate significantly from plan assumptions.</p>
+<h3 id="hierarchical-planning">Hierarchical Planning</h3>
+<p>For complex, long-horizon tasks, flat orchestration breaks down. Hierarchical planning introduces two levels: a high-level planner that decomposes the goal into sub-goals, and sub-agents or lower-level orchestrators that execute each sub-goal independently.</p>
+<pre tabindex="0"><code>┌─────────────────────────────────────────┐
+│           High-level planner            │
+│                                         │
+│  Decomposes goal into sub-goals.        │
+│  Operates over abstract objectives.     │
+│  Does not track tool-level details.     │
+└────────┬──────────────┬─────────────────┘
+         │              │
+         ▼              ▼
+┌────────────┐    ┌────────────┐
+│  Sub-agent │    │  Sub-agent │
+│     A      │    │     B      │
+│            │    │            │
+│ Specialized│    │ Specialized│
+│ tools and  │    │ tools and  │
+│ context    │    │ context    │
+└────────────┘    └────────────┘
+         │              │
+         └──────┬───────┘
+                ▼
+     Results composed back
+     by the high-level planner
+</code></pre><p>This separation keeps context windows lean at both levels — the planner doesn&rsquo;t need tool-level details, and sub-agents don&rsquo;t need full task context. The trade-off is coordination complexity. Debugging hierarchical systems requires distributed tracing that crosses agent boundaries. Failures can originate at any level and manifest at another.</p>
+<h3 id="selecting-an-orchestration-pattern">Selecting an Orchestration Pattern</h3>
+<pre tabindex="0"><code>┌──────────────────────────────────────────────────────────────────┐
+│ Decision guide                                                   │
+├──────────────────────────────────────────────────────────────────┤
+│ Task has unpredictable step sequence       → ReAct              │
+│                                                                  │
+│ Task structure is known and stable,        → CoT with           │
+│ or you need a human approval checkpoint      plan validation    │
+│ before execution begins                                          │
+│                                                                  │
+│ Task exceeds reliable planning horizon     → Hierarchical       │
+│ of a single model, or sub-tasks need         planning           │
+│ domain-specific context that shouldn&#39;t                          │
+│ bleed across a monolithic window                                 │
+└──────────────────────────────────────────────────────────────────┘
+</code></pre><p>In practice, most production systems are hybrids. The outer loop uses hierarchical decomposition; individual sub-tasks use ReAct; high-stakes sub-tasks inject a CoT plan-then-confirm step before execution.</p>
+<hr>
+<h2 id="memory-architecture-what-the-agent-knows-and-for-how-long">Memory Architecture: What the Agent Knows and for How Long</h2>
+<p>Poor memory design is the leading cause of agent unreliability in production. The failure modes are subtle — the agent appears to work, then silently loses track of context, repeats completed steps, or contradicts earlier decisions. By the time the bug is visible, it&rsquo;s several iterations into a corrupted state.</p>
+<p>The design question isn&rsquo;t &ldquo;Do I need memory?&rdquo; It&rsquo;s: what must survive across runs, what can be reconstructed cheaply, and what should never be stored?</p>
+<h3 id="short-term--working-memory-the-context-window">Short-Term / Working Memory: The Context Window</h3>
+<p>Working memory is the context window — the content assembled for the current model call. It holds the system prompt, current goal, active tool schemas, prior tool results, reasoning steps, and recent observations. It is fast, always available, and finite.</p>
+<p>The architectural risk is <strong>context degradation</strong>: as the window fills over a long task, early content — including the original goal — competes with noise. The model doesn&rsquo;t forget in a hard, detectable way. It degrades softly: subtly worse decisions, goal drift, increased hallucination rates. You will not see an error. You&rsquo;ll see subtly wrong outputs.</p>
+<pre tabindex="0"><code>Token usage across a session
+─────────────────────────────────────────────
+Iter   Context tokens   % of window
+─────────────────────────────────────────────
+1      2,260            14%   ░░░░░░░░░░
+2      2,440            16%   ░░░░░░░░░░
+3      4,890            31%   ███░░░░░░░
+4      7,120            45%   ████░░░░░░
+5      9,440            59%   █████░░░░░  ← alert threshold
+6      3,200            20%   ██░░░░░░░░  ← summarization fired
+7      5,100            32%   ███░░░░░░░
+─────────────────────────────────────────────
+Alert at 60%. Critical at 80%.
+By 90%, degradation is already occurring.
+</code></pre><p>Three mitigations address this:</p>
+<p><strong>Periodic summarization</strong> compresses accumulated reasoning and observations into a dense summary that replaces the raw content. Summarize what happened and what was decided, but keep the most recent tool results verbatim — they are the most decision-relevant content.</p>
+<p><strong>Smart eviction</strong> tracks which context elements are still decision-relevant and removes those that aren&rsquo;t. Tool results from five iterations ago rarely need to be verbatim if a summary captures their outcome. This requires tagging context elements at insertion time.</p>
+<p><strong>Chunked execution</strong> breaks long tasks into sub-tasks, each with a clean context window. State is persisted externally between chunks and retrieved at the start of each. This is hierarchical orchestration applied to memory management.</p>
+<p>Monitor token usage explicitly in your orchestration layer. Alert at 60% of the window limit — not 90%.</p>
+<h3 id="long-term-memory-external-storage">Long-Term Memory: External Storage</h3>
+<p>Long-term memory lives outside the context window and is retrieved on demand. It subdivides into three types that serve distinct purposes.</p>
+<p><strong>Episodic memory</strong> stores logs of past agent runs — what was attempted, what succeeded, what failed, and why. This is the mechanism by which agents improve over time without retraining. When starting a new task, the agent retrieves relevant past episodes and uses them as few-shot context. Episodic memory is the foundation of self-improving agents and is chronically underimplemented.</p>
+<p>Design decision: log goal, plan, key decision points, tool call summaries, and final outcome. Discard raw observation payloads after summarization. Full transcripts are expensive and noisy; final-outcome-only logging loses the reasoning that explains why outcomes occurred.</p>
+<p><strong>Semantic memory</strong> stores factual knowledge and business data — the ground truth the agent needs to answer questions accurately. In production, this is implemented via RAG: a vector store the agent queries via a tool, returning relevant chunks inserted into the context window on demand.</p>
+<p>Naive top-k vector similarity retrieval works for simple factual lookups but degrades on complex queries. More robust approaches use hybrid retrieval (combining vector similarity with BM25 keyword search), query decomposition (breaking a complex query into sub-queries before retrieving), and re-ranking (using a second model to score retrieved chunks for relevance before insertion). Each adds latency; the question is whether retrieval quality justifies it for your use case.</p>
+<p><strong>Procedural / Coordination memory</strong> is shared state in multi-agent systems — task queues, sub-task status, intermediate results, and cross-agent signals. This is the nervous system of multi-agent coordination.</p>
+<h3 id="the-memory-design-principle">The Memory Design Principle</h3>
+<pre tabindex="0"><code>For every category of information the agent needs, answer:
+─────────────────────────────────────────────────────────
+  What is its read/write frequency?
+  How long must it survive?
+  Who else needs access to it?
+  What is the cost of losing it mid-task?
+─────────────────────────────────────────────────────────
+Wrong answers produce:
+  Too much in context  →  high cost, latency, degradation
+  Too little persisted →  broken workflow continuity
+  Wrong things stored  →  security risk
+</code></pre><hr>
+<h2 id="tool-design-where-agent-reliability-is-won-or-lost">Tool Design: Where Agent Reliability Is Won or Lost</h2>
+<p>The model decides which tools to call. The orchestration layer executes them. But the tools themselves determine whether those calls succeed reliably. Poorly designed tools are the second most common production failure mode — behind memory mismanagement — and the most fixable.</p>
+<h3 id="the-three-tool-categories">The Three Tool Categories</h3>
+<p><strong>Outbound API calls</strong> connect the agent to external systems: Slack, GitHub, internal microservices. Primary failure modes are parameter errors, transient network failures triggering retry logic that can produce duplicate actions, and authentication expiry mid-task.</p>
+<p><strong>Custom functions</strong> are code you own, control, and test. They are deterministic and predictable. Use them whenever predictability matters more than flexibility — tax calculations, date arithmetic, schema validation, data transformations. Custom functions are the highest-reliability tool category and should be preferred for any computation that doesn&rsquo;t require external state.</p>
+<p><strong>Data retrieval (RAG)</strong> grounds the agent in current facts rather than training data. Every domain-specific fact the agent needs to get right should have a retrieval path. If there is no tool that retrieves it, the agent will hallucinate it.</p>
+<h3 id="tool-design-principles">Tool Design Principles</h3>
+<p><strong>Single responsibility.</strong> A tool called <code>get_customer_data</code> that conditionally fetches orders, preferences, or account status depending on parameters is three tools disguised as one. Split it. Single-responsibility tools are easier to test, easier to mock, and dramatically easier to debug when they fail.</p>
+<p><strong>Explicit, typed interfaces.</strong> Every parameter should have a type, a description, and — where applicable — a constraint on valid values. Design tool interfaces as if a careful junior engineer with no context will be calling them at 3 a.m. That junior engineer is the model.</p>
+<p><strong>Structured, predictable output.</strong> Tools should return consistent schemas regardless of the internal code path taken. A tool that returns a dict in success cases and a string in failure cases forces the model to handle multiple output shapes — and it will handle them inconsistently. Always return a typed, structured result. Make failure states as information-dense as success states — the model needs failure details to decide what to do next.</p>
+<p><strong>Idempotency where possible.</strong> Agents retry. If your tool has side effects — writes, sends, charges — idempotency prevents those side effects from compounding on retry. Include an idempotency key in any tool that performs a write operation.</p>
+<p><strong>Hard usage limits.</strong> Tools that make external writes or have financial consequences should have rate limits enforced in the tool layer, not just in prompting. The model cannot be reliably instructed to self-limit. Enforce limits structurally.</p>
+<h3 id="common-tool-anti-patterns">Common Tool Anti-Patterns</h3>
+<pre tabindex="0"><code>Anti-pattern         What goes wrong
+──────────────────────────────────────────────────────────────
+God tool             One call does everything. No intermediate
+                     checkpoint. Failure is unattributable.
+
+Under-described      A tool named &#34;search&#34; with no description
+schema               of what it searches, what format queries
+                     take, or what the output looks like.
+                     The model guesses. Sometimes correctly.
+
+Swallowed errors     Returns {&#34;status&#34;: &#34;ok&#34;, &#34;result&#34;: null}
+                     on failure. Model interprets &#34;ok&#34; as
+                     success, receives null, produces nonsense.
+
+Missing retrieval    The agent hallucinates because no tool
+coverage             covers a data source it needs. Audit
+                     coverage before you ship.
+──────────────────────────────────────────────────────────────
+</code></pre><hr>
+<h2 id="multi-agent-coordination-when-one-agent-isnt-enough">Multi-Agent Coordination: When One Agent Isn&rsquo;t Enough</h2>
+<p>Single-agent architectures hit two ceilings as task complexity grows: context window capacity and specialization. Multi-agent architectures address both by decomposing tasks across specialized agents that each operate with lean, relevant context.</p>
+<p>This is not free. Coordination introduces failure modes that don&rsquo;t exist in single-agent systems.</p>
+<h3 id="the-orchestrator-worker-pattern">The Orchestrator-Worker Pattern</h3>
+<pre tabindex="0"><code>┌─────────────────────────────────────────────────┐
+│                  Orchestrator                   │
+│                                                 │
+│  Decomposes goal → delegates sub-tasks →        │
+│  synthesizes results → determines next steps    │
+└──────────┬──────────────────────┬───────────────┘
+           │                      │
+           ▼                      ▼
+┌──────────────────┐   ┌──────────────────────────┐
+│   Worker A       │   │   Worker B               │
+│                  │   │                          │
+│ Domain-specific  │   │ Domain-specific           │
+│ tools + context  │   │ tools + context           │
+│                  │   │                          │
+│ Executes sub-task│   │ Executes sub-task        │
+│ independently    │   │ independently            │
+└──────────┬───────┘   └──────────────┬───────────┘
+           │                          │
+           └────────────┬─────────────┘
+                        ▼
+              Results composed back
+              by the orchestrator
+</code></pre><p>The design decisions that determine whether this works:</p>
+<p><strong>Sub-task interface design.</strong> The sub-task description must be self-contained — it cannot assume the worker has access to the orchestrator&rsquo;s broader context. This is the most commonly underestimated challenge. Poorly scoped sub-task descriptions produce workers that misinterpret their assignment and return irrelevant results.</p>
+<p><strong>Result schema standardization.</strong> Worker agents must return results in a schema the orchestrator can reason about reliably. Define a standard result envelope: status, payload, confidence indicator if applicable, and a brief human-readable summary the orchestrator can use for planning.</p>
+<p><strong>Failure propagation.</strong> When a worker fails, the orchestrator needs to know whether the sub-task failed completely, partially, or produced a low-confidence result. A binary success/failure signal is insufficient for a planning agent that may have recovery options.</p>
+<h3 id="shared-state-and-write-ownership">Shared State and Write Ownership</h3>
+<p>In multi-agent systems, coordination memory is a shared persistent store that all agents can read and write. The critical design decision is <strong>write ownership</strong>. In a well-designed multi-agent system, each piece of shared state has exactly one agent responsible for writing it. Concurrent writes from multiple agents without coordination produce race conditions that exhibit as intermittent, mysterious failures in production. Use optimistic locking or task-claim mechanisms to enforce write ownership at the state layer — not at the prompt layer.</p>
+<h3 id="when-multi-agent-is-the-wrong-choice">When Multi-Agent Is the Wrong Choice</h3>
+<p>Multi-agent architecture is frequently over-applied. It is the right choice when the task genuinely exceeds the planning horizon of a single model, when different sub-tasks require domain-specific context that shouldn&rsquo;t bleed across a monolithic window, or when parallelism is a hard latency requirement.</p>
+<p>It is the wrong choice when coordination overhead exceeds task complexity, when a single agent with good context management would suffice, or when the team doesn&rsquo;t yet have robust observability across agent boundaries. Many systems that claim to need multi-agent coordination are actually single agents with context management problems. Fix the context management first.</p>
+<hr>
+<h2 id="observability-tracing-the-loop-not-just-the-edges">Observability: Tracing the Loop, Not Just the Edges</h2>
+<p>Standard application monitoring tracks requests and responses. Agent observability has to track the loop — every iteration, every tool call, every reasoning step, and the token budget at each point. A single user request can produce dozens of model calls and tool executions. You need to correlate all of them into a coherent session trace.</p>
+<h3 id="what-to-emit-at-every-loop-iteration">What to Emit at Every Loop Iteration</h3>
+<p>This is the minimum viable trace event. Emit one per iteration, structured, before the next iteration begins:</p>
+<pre tabindex="0"><code>Iteration trace event
+─────────────────────────────────────────────
+session_id            Ties all iterations together
+iteration_n           Which loop cycle this is
+context_tokens        Tokens in context at start
+thought               Model&#39;s reasoning output
+tool_name             Tool selected (or &#34;none&#34;)
+tool_params           Parameters as constructed
+tool_latency_ms       Wall time for tool execution
+tool_result_size      Tokens in tool response
+context_tokens_after  Tokens in context after update
+error                 null if clean; typed if not
+timestamp_ms          Unix ms at iteration start
+</code></pre><p>Context tokens before and after is the most important pair. The delta tells you how fast the window is filling. If <code>context_tokens_after</code> is growing faster than <code>context_tokens</code> is shrinking from summarization, you will hit degradation before the task completes.</p>
+<h3 id="the-session-trace-structure">The Session Trace Structure</h3>
+<p>A complete session trace is a tree, not a flat log:</p>
+<pre tabindex="0"><code>session: s_abc123
+│
+├── iteration: 1
+│   ├── model_call: thought generation      (320ms, 1,840 tokens in)
+│   ├── tool_call:  search_knowledge_base   (210ms, result: 420 tokens)
+│   └── context snapshot: 2,260 tokens
+│
+├── iteration: 2
+│   ├── model_call: thought generation      (290ms, 2,260 tokens in)
+│   ├── tool_call:  call_crm_api            (850ms, result: 180 tokens)
+│   └── context snapshot: 2,440 tokens
+│
+├── iteration: 3
+│   ├── model_call: thought generation      (340ms, 2,440 tokens in)
+│   ├── tool_call:  summarize_context       (-1,100 tokens evicted)
+│   └── context snapshot: 1,520 tokens     ← summarization fired
+│
+└── iteration: 4
+    ├── model_call: thought generation      (305ms, 1,520 tokens in)
+    ├── tool_call:  send_email              (120ms, result: 40 tokens)
+    └── terminal: goal_achieved
+</code></pre><p>The context snapshot after iteration 3 shows summarization working correctly — the window dropped from 2,440 to 1,520 tokens. Without this tree structure, you can&rsquo;t see that event or attribute subsequent behavior to it.</p>
+<h3 id="latency-attribution">Latency Attribution</h3>
+<p>Total session latency breaks down into four buckets. You cannot optimize what you don&rsquo;t attribute:</p>
+<pre tabindex="0"><code>Session latency breakdown
+─────────────────────────────────────────────────────
+                                           % of total
+Model inference latency     ████████████     48%
+Tool execution latency      ████████████████ 38%
+  └─ call_crm_api  ████████ 22%
+  └─ search_kb     ████     10%
+  └─ send_email    ██        6%
+Context assembly latency    ████              9%
+Orchestration overhead      █                5%
+─────────────────────────────────────────────────────
+Total session wall time: 4,820ms
+</code></pre><p>In most production agents, tool latency dominates — not model inference. You find this only with per-tool timing. Without attribution, optimization effort lands on the wrong layer.</p>
+<h3 id="error-classification">Error Classification</h3>
+<p>Mixing error types in a single metric makes debugging impossible. Classify every error at emission time:</p>
+<pre tabindex="0"><code>Error taxonomy
+──────────────────────────────────────────────────────────────
+Class           Type              Recovery action
+──────────────────────────────────────────────────────────────
+Model errors
+  malformed_tool_call   Return structured error to model,
+                        allow one retry with correction hint
+  goal_drift            Reinject original goal, flag for
+                        human review if recurs
+  reasoning_loop        Detect via repeated tool calls,
+                        terminate and surface to operator
+
+Tool errors
+  transient_failure     Exponential backoff, max 3 retries
+  permanent_failure     Surface to model as context update,
+                        trigger replanning
+  parameter_invalid     Return typed error with correction
+                        schema, allow model to revise call
+  timeout               Log latency, treat as transient,
+                        apply retry policy
+
+Orchestration errors
+  context_overflow      Emergency summarization before
+                        next model call
+  termination_failure   Hard stop, checkpoint state, alert
+  state_corruption      Halt immediately, do not recover,
+                        escalate
+──────────────────────────────────────────────────────────────
+</code></pre><h3 id="alert-rules">Alert Rules</h3>
+<pre tabindex="0"><code>Alert rules
+──────────────────────────────────────────────────────────────
+Signal                  Threshold       Action
+──────────────────────────────────────────────────────────────
+Context tokens          &gt; 60% limit     Trigger summarization
+Context tokens          &gt; 80% limit     Force summarization,
+                                        suspend iteration
+Tool error rate         &gt; 2/session     Log, notify on-call
+                                        if task is high-stakes
+Repeated tool call      Same tool ≥ 3   Detect retry spiral,
+                        consecutive     terminate session
+Session duration        &gt; P99 baseline  Flag for review
+Termination condition   Not reached     Hard stop at max
+not triggered           by max_iter     iteration limit
+State corruption        Any occurrence  Halt immediately
+──────────────────────────────────────────────────────────────
+</code></pre><p>The repeated tool call rule catches the most destructive failure mode: a retry spiral where the agent calls the same failing tool indefinitely. This burns tokens, time, and potentially triggers external side effects on every call.</p>
+<hr>
+<h2 id="production-guardrails-and-recovery">Production Guardrails and Recovery</h2>
+<h3 id="guardrails-constraining-the-action-space">Guardrails: Constraining the Action Space</h3>
+<p>Guardrails are structural constraints on what the agent can do. They are enforced in the orchestration and tool layers — not in prompting — and cannot be overridden by model output.</p>
+<p><strong>Input guardrails</strong> validate the goal and context before the loop begins. Malformed goals, goals that reference unavailable tools, or goals that exceed defined scope should be rejected at intake — not discovered three iterations into an expensive loop.</p>
+<p><strong>Tool call validation</strong> checks every tool call the model generates before execution. Validate parameter types, check values against allowed ranges, and verify the requested tool is in scope. Reject malformed calls and return a structured error to the model. The model can often recover from a rejected call if the error message is informative.</p>
+<p><strong>Output guardrails</strong> screen the agent&rsquo;s final output before it&rsquo;s returned or acted on. For agents that produce content consumed by users, check for policy violations or hallucinated citations. For agents that take real-world actions, validate that the proposed action is within defined operational bounds before execution.</p>
+<p><strong>Rate and scope limits</strong> enforce hard ceilings on the real-world impact any single session can have: maximum API calls per tool per session, maximum financial transactions per hour, maximum records modified per run. These live at the infrastructure layer — not in the prompt.</p>
+<h3 id="human-in-the-loop-checkpoints">Human-in-the-Loop Checkpoints</h3>
+<p>Not every action should be auto-executed. High-stakes, irreversible, or high-uncertainty actions should route through a human approval checkpoint before execution. The classification logic — which actions are always auto-approved, always human-approved, and conditionally approved — must be enumerated explicitly in a policy configuration that the orchestration layer enforces. Don&rsquo;t rely on the model to classify this.</p>
+<h3 id="failure-recovery">Failure Recovery</h3>
+<p><strong>Structured error handling at the tool layer</strong> means every tool returns a consistent failure schema with a failure type (transient, permanent, recoverable), a retry recommendation, and a human-readable explanation. The orchestration layer uses this to route failures correctly.</p>
+<p><strong>Loop termination conditions</strong> must be explicitly defined. The loop ends when: the goal is achieved, a stopping condition fires (maximum iterations reached, token budget exhausted, error threshold exceeded), or a terminal failure occurs. Without explicit termination logic, loops run until they hit a hard timeout — wasting resources and potentially taking partial, inconsistent actions along the way.</p>
+<p><strong>State checkpointing</strong> persists the agent&rsquo;s current state at defined intervals so that a crash mid-task can be resumed rather than restarted from scratch. The checkpoint includes: current goal, completed steps, tool results obtained, and the current context summary.</p>
+<p><strong>Audit trails</strong> record every action taken, every tool called, and every model decision made during a session. For agents that modify external state, the audit trail should include enough information to reverse each action — not just that an action was taken. Design the trail as if you&rsquo;ll need to reconstruct and undo a session in production under time pressure. You will.</p>
+<hr>
+<h2 id="the-guiding-principles">The Guiding Principles</h2>
+<p>Design memory like a thoughtful schema: persist what must survive, reconstruct what can be rebuilt cheaply, never store what shouldn&rsquo;t be retained.</p>
+<p>Design tools like clean API contracts: explicit, single-purpose, hard to misuse.</p>
+<p>Design orchestration around failure, not the happy path: termination conditions, error classification, retry bounds, and checkpointing are not edge case concerns — they are the architecture.</p>
+<p>Design coordination for correctness before performance: enforce write ownership structurally, enumerate dependencies explicitly, and introduce parallelism only when sequential execution has proven insufficient.</p>
+<p>Instrument the loop, not just the edges: the inputs and final outputs of a session tell you almost nothing about why it failed. The per-iteration trace — token trajectory, tool selection, latency attribution, error classification — tells you everything.</p>
+<p>The model gets the hype. Memory, tools, orchestration, observability, and operations determine whether your agent becomes a reliable system or a cautionary tale.</p>
+]]></content:encoded></item><item><title>Hosting Local LLMs on Kubernetes: A Complete Enterprise Architecture Guide</title><link>https://blog.yottadynamics.com/posts/hosting-local-llms-on-kubernetes/</link><pubDate>Mon, 06 Apr 2026 09:00:00 -0400</pubDate><guid>https://blog.yottadynamics.com/posts/hosting-local-llms-on-kubernetes/</guid><description>A deep-dive into every layer of a production-grade, fully open-source stack for self-hosting large language models — from the API gateway to the GPU compute plane.</description><category>ai-infrastructure</category><category>kubernetes</category><category>platform-engineering</category><category>operations</category><category>architecture</category><enclosure url="https://blog.yottadynamics.com/images/posts/hosting-local-llms-on-kubernetes.svg" type="image/svg+xml"/><content:encoded><![CDATA[<p><em>A deep-dive into every layer of a production-grade, fully open-source stack for self-hosting large language models — from the API gateway to the GPU compute plane.</em></p>
+<hr>
+<h2 id="why-self-host">Why self-host?</h2>
+<p>Cloud-hosted LLM APIs are convenient, but they come with trade-offs that matter at enterprise scale: data leaves your network on every inference call, costs scale linearly with volume (and models are getting longer), and you have no control over model versioning, rate limits, or uptime SLAs. Self-hosting on Kubernetes gives you full control over the stack — at the cost of having to build and operate that stack yourself.</p>
+<p>This guide covers every layer of a production LLM serving platform using exclusively open-source tools. We&rsquo;ll go from a raw HTTP request all the way down to GPU silicon, explaining why each component exists and how they fit together.</p>
+<hr>
+<h2 id="architecture-overview">Architecture overview</h2>
+<p>The full stack has seven layers, each solving a distinct set of problems:</p>
+<pre tabindex="0"><code>┌─────────────────────────────────────────────────────────────────┐
+│                         CLIENTS                                 │
+│          Web apps · Mobile · CLI agents · Internal APIs         │
+└───────────────────────────┬─────────────────────────────────────┘
+                            │ HTTPS
+┌───────────────────────────▼─────────────────────────────────────┐
+│                   API GATEWAY LAYER                             │
+│   cert-manager (TLS) · Keycloak (OIDC) · Rate limiting         │
+│   WAF · LLM Guard · Envoy / Kong / Traefik + Gateway API       │
+└───────────────────────────┬─────────────────────────────────────┘
+                            │ cache hit? return early
+┌───────────────────────────▼─────────────────────────────────────┐
+│                    LLM CACHE LAYER                              │
+│        Exact-match (Redis) · Semantic (Qdrant) · KV prefix      │
+└───────────────────────────┬─────────────────────────────────────┘
+                            │ cache miss → forward to inference
+┌───────────────────────────▼─────────────────────────────────────┐
+│                  INFERENCE LAYER (vLLM)                         │
+│   Router · Tensor parallelism · Pipeline parallelism            │
+│   Continuous batching · Paged attention · Speculative decoding  │
+└───────────────────────────┬─────────────────────────────────────┘
+                            │ kernel calls
+┌───────────────────────────▼─────────────────────────────────────┐
+│                  GPU COMPUTE LAYER                              │
+│     NVIDIA device plugin · MIG · NVLink/RoCE · KEDA autoscale  │
+└───────────────────────────┬─────────────────────────────────────┘
+                            │ model weights loaded from
+┌───────────────────────────▼─────────────────────────────────────┐
+│               MODEL STORAGE &amp; REGISTRY                          │
+│          MinIO (S3) · MLflow · Rook-Ceph · Init containers      │
+└─────────────────────────────────────────────────────────────────┘
+
+    Cross-cutting concerns (all layers)
+    ├── Observability: Prometheus · Grafana · Jaeger · Loki
+    └── Control plane: ArgoCD · Vault · Istio / Cilium · OPA Gatekeeper
+</code></pre><p>Let&rsquo;s walk through each layer in detail.</p>
+<hr>
+<h2 id="layer-1-the-api-gateway">Layer 1: The API gateway</h2>
+<p>The gateway is the single entry point for all LLM traffic. It does a lot of work before a single token gets generated.</p>
+<h3 id="why-kubernetes-gateway-api-not-legacy-ingress">Why Kubernetes Gateway API (not legacy Ingress)?</h3>
+<p>The older Kubernetes Ingress API conflates infrastructure and application concerns. The <strong>Kubernetes Gateway API</strong> (GA and mature in 2026) separates them cleanly:</p>
+<ul>
+<li><code>GatewayClass</code> — infrastructure team owns the controller (Envoy Gateway, Kong, Traefik, etc.).</li>
+<li><code>Gateway</code> — defines listeners, TLS, and ports.</li>
+<li><code>HTTPRoute</code> — application/ML teams define routing per model endpoint.</li>
+</ul>
+<p>This separation is essential in enterprises where platform and ML teams are distinct.</p>
+<h3 id="tls-termination">TLS termination</h3>
+<p>Use <code>cert-manager</code> for automated certificates (Let&rsquo;s Encrypt for public endpoints or internal CA for private clusters). The gateway terminates TLS; internal east-west traffic uses mTLS via the service mesh.</p>
+<h3 id="authentication-and-authorization">Authentication and authorization</h3>
+<p>Use <strong>OIDC/OAuth2</strong> with <strong>Keycloak</strong> (or equivalent). Map scopes to models for cost governance — for example, <code>scope:large-model</code> unlocks higher-tier inference and can gate access to expensive 70B+ parameter models.</p>
+<h3 id="rate-limiting">Rate limiting</h3>
+<p>LLMs require dual limits:</p>
+<ul>
+<li>Requests per minute (protect against abuse).</li>
+<li>Tokens per hour/day (prevent cost overruns).</li>
+</ul>
+<p>Implement via Envoy rate-limit service (backed by Redis) or native plugins in Kong/Traefik. Charge token usage asynchronously after generation.</p>
+<h3 id="waf-ddos-protection-and-prompt-guarding">WAF, DDoS protection, and prompt guarding</h3>
+<p>Apply OWASP Core Rule Set (via Envoy Lua/WASM or ModSecurity) and a lightweight <strong>LLM Guard</strong> sidecar for prompt injection, PII scrubbing, and toxicity scoring.</p>
+<h3 id="audit-logging-and-distributed-tracing">Audit logging and distributed tracing</h3>
+<p>Emit OpenTelemetry spans for every request (user identity, model, token counts, cache status, latency breakdown). Ship to Jaeger + Prometheus + Loki.</p>
+<h3 id="gateway-implementation-choices">Gateway implementation choices</h3>
+<table>
+  <thead>
+      <tr>
+          <th>Option</th>
+          <th>Best for</th>
+          <th>Notes</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td><strong>Envoy Gateway</strong></td>
+          <td>Performance &amp; control</td>
+          <td>Strong Gateway API conformance; excellent for custom AI logic</td>
+      </tr>
+      <tr>
+          <td><strong>Kong Gateway OSS</strong></td>
+          <td>Plugin ecosystem</td>
+          <td>Rich out-of-box plugins for auth, rate limiting, AI features</td>
+      </tr>
+      <tr>
+          <td><strong>Traefik</strong></td>
+          <td>Simplicity &amp; GitOps</td>
+          <td>Excellent Kubernetes-native experience</td>
+      </tr>
+  </tbody>
+</table>
+<p>All three support the Gateway API spec. Choose based on team expertise. Emerging options like Agentgateway add AI-specific routing (agent-to-agent traffic, tool call routing) that may matter for multi-agent workloads.</p>
+<hr>
+<h2 id="layer-2-the-llm-cache">Layer 2: The LLM cache</h2>
+<p>Cache hits eliminate GPU work entirely — this is the highest-leverage optimization in the stack.</p>
+<h3 id="three-tiers-of-caching">Three tiers of caching</h3>
+<p><strong>1. Exact-match cache (Redis/Valkey)</strong></p>
+<p>SHA256 of (model + messages + parameters). Great for FAQs, repeatable batch jobs, and any deterministic prompt patterns. Typical hit rate: 5–20%.</p>
+<p><strong>2. Semantic cache (GPTCache + Qdrant, or Redis with vector search)</strong></p>
+<p>Embedding-based cosine similarity lookup. Tune the threshold carefully — 0.92–0.95 for factual work, disabled for creative tasks. Typical hit rate: 15–40%. The tradeoff is a small added latency for the embedding lookup and risk of incorrect hits if your threshold is too loose.</p>
+<p><strong>3. vLLM prefix KV cache (GPU-resident)</strong></p>
+<p>vLLM hashes KV blocks for shared system prompts or RAG contexts and reuses them across requests. This is the most powerful tier: for chatbot or RAG workloads where most requests share the same system prompt, prefix cache hit rates of 60–90% are common, dramatically cutting time-to-first-token (TTFT).</p>
+<p>Combine all three tiers. The exact-match check is microseconds; the semantic check adds a few milliseconds; the prefix cache operates within vLLM transparently.</p>
+<hr>
+<h2 id="layer-3-vllm-inference">Layer 3: vLLM inference</h2>
+<p><strong>vLLM</strong> remains the highest-throughput open-source inference engine for LLMs. Its core innovations are worth understanding because they directly shape how you size and operate it.</p>
+<h3 id="paged-attention">Paged attention</h3>
+<p>Traditional inference pre-allocates a contiguous KV cache block per sequence. vLLM uses paged attention — non-contiguous physical blocks allocated on demand — which eliminates memory fragmentation and enables much higher concurrent sequence counts on the same GPU memory.</p>
+<h3 id="continuous-batching">Continuous batching</h3>
+<p>Rather than processing a fixed batch then starting a new one, vLLM uses continuous batching (also called iteration-level scheduling): new requests join the batch mid-iteration as soon as a slot frees. This eliminates GPU idle time between requests and is a primary driver of throughput improvement over naive serving.</p>
+<h3 id="prefix-caching">Prefix caching</h3>
+<p>vLLM computes and caches KV blocks for common prefixes (system prompts, RAG contexts). Subsequent requests that share the prefix skip the prefill computation for those tokens entirely. At scale, this is often the difference between a cluster that fits in budget and one that doesn&rsquo;t.</p>
+<h3 id="parallelism-strategies">Parallelism strategies</h3>
+<p>For models exceeding single-GPU VRAM:</p>
+<ul>
+<li><strong>Tensor parallelism</strong>: Splits weight matrices across GPUs within a node. Uses NVLink/NVSwitch for fast all-reduce. Scales to 8 GPUs per node efficiently.</li>
+<li><strong>Pipeline parallelism</strong>: Splits model layers across nodes. Uses RoCE or InfiniBand for inter-node communication. Introduces pipeline bubbles but enables serving models that won&rsquo;t fit on a single node.</li>
+</ul>
+<p>Combine both for the largest models.</p>
+<h3 id="quantization">Quantization</h3>
+<p>Production recommendations in approximate priority order:</p>
+<ul>
+<li><strong>FP8</strong> (H100/H200): Near-lossless quality, ~2× memory reduction, supported natively in hardware.</li>
+<li><strong>AWQ</strong>: Excellent quality/size tradeoff for A100 and older hardware.</li>
+<li><strong>GPTQ</strong>: Widely supported, slightly lower quality than AWQ at equivalent bit-width.</li>
+</ul>
+<p>Leave 10–15% GPU memory headroom above your model&rsquo;s requirements for KV cache and kernel overhead.</p>
+<h3 id="context-length-as-an-operational-lever">Context length as an operational lever</h3>
+<p><code>max_model_len</code> — the maximum sequence length vLLM will accept — directly controls KV cache memory consumption per slot. Longer contexts consume proportionally more KV cache memory, which reduces the number of concurrent sequences the engine can hold and increases TTFT.</p>
+<p>Set <code>max_model_len</code> deliberately rather than leaving it at the model&rsquo;s architectural maximum. For most production workloads, a limit of 8k–32k tokens is sufficient and meaningfully improves throughput. Monitor <code>vllm:gpu_cache_usage_perc</code> — if it runs consistently above 85%, reducing <code>max_model_len</code> is often the fastest way to recover headroom before adding hardware.</p>
+<h3 id="speculative-decoding">Speculative decoding</h3>
+<p>A draft model generates candidate tokens at low cost; the target model verifies them in parallel. Effective for latency-sensitive workloads where output is predictable (code, structured data). Adds complexity — evaluate whether the latency gain justifies the operational overhead.</p>
+<h3 id="advanced-disaggregated-inference">Advanced: disaggregated inference</h3>
+<p>For very large-scale deployments (many thousands of requests per day), consider disaggregated inference: separate prefill pods (compute-intensive, large batches) from decode pods (memory-bandwidth-intensive, streaming). The <strong>llm-d</strong> project implements this pattern and integrates with vLLM. It adds significant operational complexity but can substantially improve hardware utilization at scale.</p>
+<hr>
+<h2 id="layer-4-gpu-compute">Layer 4: GPU compute</h2>
+<h3 id="nvidia-gpu-operator">NVIDIA GPU Operator</h3>
+<p>Install via Helm. It automates driver installation, device plugin deployment, DCGM exporter setup, and container toolkit configuration. Without it, GPU node management becomes a manual nightmare across OS upgrades and Kubernetes versions.</p>
+<h3 id="gpu-sharing">GPU sharing</h3>
+<ul>
+<li><strong>MIG (Multi-Instance GPU)</strong>: Available on A100/H100+. Creates hardware-isolated partitions with dedicated memory slices and compute engines. The right choice when you need strict isolation between workloads (multi-tenant or mixed-criticality).</li>
+<li><strong>Time-slicing</strong>: Software-level sharing configured via GPU Operator. Lower overhead than MIG, no memory isolation. Suitable for dev/test environments or homogeneous workloads.</li>
+</ul>
+<h3 id="high-speed-interconnects">High-speed interconnects</h3>
+<p>NVLink/NVSwitch for intra-node GPU communication (tensor parallelism collectives). RoCE v2 or InfiniBand for inter-node communication (pipeline parallelism and distributed training). For inference-only clusters, RoCE with RDMA is typically sufficient and significantly cheaper than InfiniBand.</p>
+<h3 id="autoscaling-with-keda">Autoscaling with KEDA</h3>
+<p>CPU/GPU utilization is a poor signal for LLM autoscaling — a GPU can be 80% utilized but handling requests efficiently, or 20% utilized but with a growing queue. Use <strong>KEDA</strong> with a Prometheus trigger on <code>vllm:num_requests_waiting</code>.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#f92672">apiVersion</span>: <span style="color:#ae81ff">keda.sh/v1alpha1</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">kind</span>: <span style="color:#ae81ff">ScaledObject</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">metadata</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">name</span>: <span style="color:#ae81ff">vllm-scaledobject</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">namespace</span>: <span style="color:#ae81ff">inference</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">spec</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">scaleTargetRef</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">name</span>: <span style="color:#ae81ff">vllm-deployment</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">minReplicaCount</span>: <span style="color:#ae81ff">1</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">maxReplicaCount</span>: <span style="color:#ae81ff">8</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">triggers</span>:
+</span></span><span style="display:flex;"><span>  - <span style="color:#f92672">type</span>: <span style="color:#ae81ff">prometheus</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">metadata</span>:
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">serverAddress</span>: <span style="color:#ae81ff">http://prometheus.monitoring.svc:9090</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">query</span>: <span style="color:#ae81ff">sum(vllm:num_requests_waiting{model=&#34;llama-3-70b&#34;})</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">threshold</span>: <span style="color:#e6db74">&#34;8&#34;</span>
+</span></span></code></pre></div><p>Target approximately 5–10 pending requests per replica as your threshold. Combine with Cluster Autoscaler or Karpenter for node-level scaling (GPU nodes take 3–5 minutes to join; plan for that latency in your scale-out strategy).</p>
+<h3 id="readiness-probes-and-rolling-deploys">Readiness probes and rolling deploys</h3>
+<p>vLLM takes several minutes to load weights before it can serve requests — 5–10 minutes for a 70B model depending on storage throughput. Without a correctly configured readiness probe, Kubernetes will route traffic to pods that are still loading and immediately return errors.</p>
+<p>Configure the readiness probe against vLLM&rsquo;s <code>/health</code> endpoint with a sufficiently long <code>initialDelaySeconds</code> (or use <code>startupProbe</code> with a high <code>failureThreshold</code> to avoid timing fights). Set <code>terminationGracePeriodSeconds</code> long enough to drain in-flight streaming responses — 120–300 seconds is typical. During a rolling deploy, the old replica keeps serving until the new one passes its readiness check.</p>
+<h3 id="graceful-scale-down">Graceful scale-down</h3>
+<p>KEDA&rsquo;s default scale-down is aggressive. An in-progress streaming response can be 60+ seconds; a pod termination that fires mid-stream silently drops the connection. Set <code>scaleDown.stabilizationWindowSeconds</code> in the ScaledObject (300–600 seconds is reasonable) and configure a <code>preStop</code> lifecycle hook that waits for active connections to drain before the pod accepts SIGTERM. Pair this with <code>minReplicaCount: 1</code> to prevent complete scale-to-zero for latency-sensitive endpoints.</p>
+<hr>
+<h2 id="layer-5-model-storage-and-registry">Layer 5: Model storage and registry</h2>
+<h3 id="getting-weights-into-minio">Getting weights into MinIO</h3>
+<p>Most teams source weights from Hugging Face Hub. The practical pipeline: download once to a secure jump host or CI runner (<code>huggingface-cli download</code> or <code>hf_transfer</code> for speed), verify the SHA256 checksum against the Hub&rsquo;s published value, apply your quantization step if needed (AWQ/FP8 conversion offline before serving), then push to MinIO with versioned paths (<code>/models/llama-3-70b/awq-4bit/v1.2/</code>). Never pull directly from Hugging Face into production inference pods — it bypasses your checksum verification, creates an external dependency at pod startup, and is slow.</p>
+<p>For air-gapped environments, mirror the weights to an internal registry during the ingestion pipeline and gate on checksum + license validation before the weights are considered promotion-eligible in MLflow.</p>
+<h3 id="object-storage-minio">Object storage (MinIO)</h3>
+<p>Store model weights in MinIO (S3-compatible). Version with prefixed paths (<code>/models/llama-3-70b/v2.1/</code>). Use init containers to pull weights into a shared volume before the inference pod starts, or mount directly via a CSI driver.</p>
+<h3 id="model-registry-mlflow">Model registry (MLflow)</h3>
+<p>Track model lineage, quantization config, evaluation results, and deployment history. Enables A/B testing via weighted routing in the gateway. Integrate with your CI/CD pipeline so model promotions are gated on evaluation thresholds.</p>
+<h3 id="persistent-storage-rook-ceph">Persistent storage (Rook-Ceph)</h3>
+<p>For RWX access patterns (multiple inference pods reading weights simultaneously), Rook-Ceph provides a self-managed distributed filesystem. Alternatively, MinIO with parallel downloads from multiple replicas works well if you cache locally on the node.</p>
+<p>Always verify checksums after weight downloads — a corrupted weight file produces subtle, hard-to-diagnose inference errors.</p>
+<hr>
+<h2 id="layer-6-observability">Layer 6: Observability</h2>
+<p>LLMs have different failure modes than typical services. Your dashboards need to reflect that.</p>
+<h3 id="key-vllm-metrics">Key vLLM metrics</h3>
+<table>
+  <thead>
+      <tr>
+          <th>Metric</th>
+          <th>What it tells you</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td><code>vllm:num_requests_waiting</code></td>
+          <td>Queue depth — primary autoscaling signal</td>
+      </tr>
+      <tr>
+          <td><code>vllm:gpu_cache_usage_perc</code></td>
+          <td>KV cache pressure — if consistently &gt;85%, add replicas or reduce context length</td>
+      </tr>
+      <tr>
+          <td><code>vllm:prefix_cache_hit_rate</code></td>
+          <td>Prefix cache effectiveness</td>
+      </tr>
+      <tr>
+          <td><code>vllm:e2e_request_latency</code></td>
+          <td>End-to-end latency histogram</td>
+      </tr>
+      <tr>
+          <td><code>vllm:time_to_first_token</code></td>
+          <td>TTFT — user-perceived responsiveness</td>
+      </tr>
+      <tr>
+          <td><code>vllm:time_per_output_token</code></td>
+          <td>TPOT — streaming speed</td>
+      </tr>
+  </tbody>
+</table>
+<h3 id="gpu-metrics-dcgm-exporter">GPU metrics (DCGM exporter)</h3>
+<p>Monitor GPU utilization, memory bandwidth, NVLink throughput, and GPU temperature. Throttling events (SM clock drops) indicate thermal or power issues that degrade throughput without obvious errors.</p>
+<h3 id="tracing-and-logging">Tracing and logging</h3>
+<p>Propagate trace context from the gateway through to vLLM. Log request_id, user_id, model, token counts (prompt + completion), cache tier hit (exact/semantic/prefix), TTFT, TPOT, and any guardrail flags. This data is essential for cost attribution and debugging latency regressions.</p>
+<hr>
+<h2 id="layer-7-the-platform-control-plane">Layer 7: The platform control plane</h2>
+<h3 id="gitops-argocd--flux">GitOps (ArgoCD / Flux)</h3>
+<p>Every cluster resource — deployments, ScaledObjects, policies, secrets references — lives in Git. ArgoCD syncs it. No manual kubectl apply in production. This makes rollbacks, audits, and multi-cluster management tractable.</p>
+<h3 id="secrets-management-hashicorp-vault">Secrets management (HashiCorp Vault)</h3>
+<p>Dynamic secrets for database credentials, API keys, and model registry tokens. Use the Vault Agent sidecar or External Secrets Operator to inject secrets as environment variables or files. Avoid Kubernetes Secrets for anything sensitive — they&rsquo;re base64-encoded in etcd, not encrypted by default.</p>
+<h3 id="service-mesh-istio--cilium">Service mesh (Istio / Cilium)</h3>
+<p>mTLS for all east-west traffic. Zero-trust: pods cannot communicate unless explicitly permitted. Cilium (eBPF-based) has lower overhead than Istio&rsquo;s sidecar model and is the better choice for latency-sensitive inference traffic. Use Istio if you need its traffic management features (circuit breaking, retry policies, mirroring).</p>
+<h3 id="policy-opa-gatekeeper">Policy (OPA Gatekeeper)</h3>
+<p>Admission control policies that enforce:</p>
+<ul>
+<li>All GPU workloads must have resource limits set.</li>
+<li>No <code>:latest</code> image tags in production namespaces.</li>
+<li>All pods must carry cost-attribution labels (<code>team</code>, <code>model</code>, <code>environment</code>).</li>
+<li>GPU nodes must have the appropriate taint/toleration pair.</li>
+</ul>
+<h3 id="network-policies">Network policies</h3>
+<p>Restrict pod communication explicitly. Inference pods should only accept traffic from the gateway and observability scrape jobs. They should only egress to the model registry and observability collectors. Default-deny egress on inference namespaces prevents data exfiltration.</p>
+<hr>
+<h2 id="full-request-lifecycle">Full request lifecycle</h2>
+<p>Putting it together, a single inference request flows through:</p>
+<ol>
+<li><strong>TLS termination</strong> at the gateway — client presents token.</li>
+<li><strong>OIDC validation</strong> — Keycloak confirms identity, scope checked against requested model.</li>
+<li><strong>Rate limit check</strong> — token budget and request rate verified in Redis.</li>
+<li><strong>Prompt guard</strong> — LLM Guard sidecar scans for injection and PII.</li>
+<li><strong>Exact-match cache check</strong> — SHA256 lookup in Redis.</li>
+<li><strong>Semantic cache check</strong> — embedding lookup in Qdrant (on cache miss).</li>
+<li><strong>vLLM routing</strong> — request forwarded to least-loaded replica.</li>
+<li><strong>Prefix cache check</strong> — vLLM checks KV block hashes for shared prefix.</li>
+<li><strong>Prefill</strong> — prompt tokens processed, KV cache populated.</li>
+<li><strong>Decode</strong> — tokens generated and streamed back via SSE.</li>
+<li><strong>Token accounting</strong> — usage logged asynchronously for cost attribution.</li>
+<li><strong>Trace closed</strong> — span exported to Jaeger with full latency breakdown.</li>
+</ol>
+<p>Latency and cost are controlled at steps 5, 6, and 8. Observability at every step.</p>
+<hr>
+<h2 id="when-to-evolve-beyond-pure-vllm-deployments">When to evolve beyond pure vLLM deployments</h2>
+<p>The stack described here is ideal for focused, high-performance serving of a small number of models. For larger-scale scenarios, consider layering additional tooling:</p>
+<p><strong>KServe</strong> (with vLLM runtime or LLMInferenceService) adds a standardized control plane for multi-model governance, canary rollouts, and heterogeneous workloads (LLMs + embeddings + vision models). It keeps vLLM as the inference engine while providing higher-level abstractions for model lifecycle management.</p>
+<p><strong>llm-d</strong> adds advanced distributed routing and disaggregated prefill/decode separation on top of vLLM. Worth evaluating when you have dedicated hardware for prefill compute and want to maximize utilization of decode capacity separately.</p>
+<p>These are additive layers — they don&rsquo;t replace vLLM, they orchestrate it.</p>
+<hr>
+<h2 id="gaps-worth-filling-for-your-environment">Gaps worth filling for your environment</h2>
+<p>This guide covers the core serving platform. Depending on your context, you&rsquo;ll also need to address:</p>
+<ul>
+<li><strong>Multi-tenancy</strong>: Dedicated namespaces per team (strong isolation, higher overhead) vs. shared inference pool with metering at the gateway (better utilization, more complex chargeback).</li>
+<li><strong>Fine-tuning</strong>: Separate GPU node pools with tools like Axolotl or LitGPT. Never share fine-tuning and inference workloads on the same nodes — memory pressure from training jobs will degrade inference latency unpredictably.</li>
+<li><strong>Multi-region / HA</strong>: Global load balancing across clusters + MinIO cross-region replication for weight distribution.</li>
+<li><strong>Cost attribution</strong>: Token metering at the gateway + GPU-hour tracking via OpenCost or custom labels. Essential for chargeback and for identifying which teams/models are driving cost.</li>
+<li><strong>A/B testing</strong>: Weighted routing in Gateway API HTTPRoute + Grafana dashboards comparing TTFT/TPOT/quality metrics between model versions.</li>
+<li><strong>Security hardening</strong>: Image scanning in CI, runtime sandboxes (gVisor or Kata Containers for multi-tenant isolation), and prompt/response logging policies that avoid persisting sensitive data.</li>
+</ul>
+<hr>
+<h2 id="summary-the-full-open-source-stack">Summary: the full open-source stack</h2>
+<table>
+  <thead>
+      <tr>
+          <th>Layer</th>
+          <th>Function</th>
+          <th>Tools</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>API Gateway</td>
+          <td>Auth, rate limiting, routing</td>
+          <td>Envoy / Kong / Traefik + Gateway API</td>
+      </tr>
+      <tr>
+          <td>Identity</td>
+          <td>Authn/Authz</td>
+          <td>Keycloak</td>
+      </tr>
+      <tr>
+          <td>Caching</td>
+          <td>Reduce GPU compute</td>
+          <td>Redis, Qdrant / GPTCache, vLLM prefix</td>
+      </tr>
+      <tr>
+          <td>Inference</td>
+          <td>Token generation</td>
+          <td>vLLM (core) — optional KServe / llm-d</td>
+      </tr>
+      <tr>
+          <td>GPU management</td>
+          <td>Resource scheduling</td>
+          <td>NVIDIA GPU Operator, MIG / time-slicing, KEDA</td>
+      </tr>
+      <tr>
+          <td>Model storage</td>
+          <td>Weight distribution</td>
+          <td>MinIO, Rook-Ceph, MLflow</td>
+      </tr>
+      <tr>
+          <td>Observability</td>
+          <td>Metrics / traces / logs</td>
+          <td>Prometheus, Grafana, Jaeger, Loki</td>
+      </tr>
+      <tr>
+          <td>GitOps</td>
+          <td>Config management</td>
+          <td>ArgoCD / Flux</td>
+      </tr>
+      <tr>
+          <td>Secrets</td>
+          <td>Credential management</td>
+          <td>HashiCorp Vault</td>
+      </tr>
+      <tr>
+          <td>Network security</td>
+          <td>Zero-trust mTLS</td>
+          <td>Istio / Cilium</td>
+      </tr>
+      <tr>
+          <td>Policy</td>
+          <td>Admission control</td>
+          <td>OPA Gatekeeper</td>
+      </tr>
+  </tbody>
+</table>
+<p>This stack delivers full data sovereignty, predictable costs, and high performance with no per-token pricing.</p>
+<p>The operational investment is real. You need platform engineers who understand Kubernetes, GPU workloads, and distributed systems. But for teams with strict compliance requirements, high inference volume, or custom/fine-tuned models, self-hosting on Kubernetes is overwhelmingly worthwhile — and the tooling has matured to the point where the gap with managed services has narrowed significantly.</p>
+]]></content:encoded></item><item><title>What Is an AI Agent? A Practical Guide for Builders</title><link>https://blog.yottadynamics.com/posts/what-is-an-ai-agent-a-practical-guide/</link><pubDate>Mon, 06 Apr 2026 09:00:00 -0400</pubDate><guid>https://blog.yottadynamics.com/posts/what-is-an-ai-agent-a-practical-guide/</guid><description>The term &amp;lsquo;AI agent&amp;rsquo; gets applied to everything from a ChatGPT thread with a button to systems that autonomously manage deployments. That imprecision directly shapes the architectures you choose and the failure modes you inherit.</description><category>ai-agents</category><category>architecture</category><category>ai-infrastructure</category><enclosure url="https://blog.yottadynamics.com/images/posts/what-is-an-ai-agent-a-practical-guide.svg" type="image/svg+xml"/><content:encoded><![CDATA[<p>Everyone&rsquo;s talking about AI agents. Most implementations are expensive chatbots with a marketing label.</p>
+<p>The term gets applied to everything from a ChatGPT thread with a button to systems that autonomously manage deployments and customer operations. That imprecision isn&rsquo;t just annoying — it directly shapes the architectures you choose, the failure modes you inherit, and whether your &ldquo;agent&rdquo; actually ships value or becomes a production liability.</p>
+<p>Let&rsquo;s fix that.</p>
+<hr>
+<h2 id="the-operational-definition">The Operational Definition</h2>
+<p>An <strong>AI agent</strong> is an application that places a language model in a continuous loop: it perceives its environment through inputs and context, reasons about the next action, executes that action via tools, observes the result, and iterates — until the goal is achieved or a stopping condition fires.</p>
+<p>Shorter: <strong>a language model in a loop, augmented with tools, to accomplish an objective.</strong></p>
+<p>This think-act-observe cycle is what separates agents from static inference. The loop introduces probabilistic control flow, which is simultaneously the source of power and the root of every 2 a.m. incident. Understanding that trade-off in detail is the entire discipline.</p>
+<pre tabindex="0"><code>┌───────────┐     ┌───────────┐     ┌───────────┐     ┌───────────┐
+│  Perceive │────▶│  Reason   │────▶│    Act    │────▶│  Observe  │
+│           │     │           │     │           │     │           │
+│ Context + │     │ Plan next │     │ Call a    │     │ Update    │
+│ inputs    │     │ action    │     │ tool      │     │ context   │
+└───────────┘     └───────────┘     └───────────┘     └─────┬─────┘
+      ▲                                                      │
+      └──────────────────────────────────────────────────────┘
+                     loops until goal is achieved
+</code></pre><hr>
+<h2 id="the-four-components">The Four Components</h2>
+<p>Every agent is built from the same four parts. Three get the attention. One determines whether it survives production.</p>
+<p><strong>The Model — the reasoning engine.</strong> The LLM analyzes context and decides what to do next. It never executes actions directly; it only plans them. Its output quality is entirely bounded by the quality of the context you feed it. Weak context produces confident stupidity.</p>
+<p><strong>Tools — the interface to the real world.</strong> APIs, functions, databases, external services. Tools let the agent fetch live data, run computations, and take real-world actions. Without them, you have expensive autocomplete, not an agent.</p>
+<p><strong>The Orchestration Layer — the nervous system.</strong> This owns the loop: planning, state tracking, memory retrieval, tool dispatch, error recovery, and termination logic. Orchestration is what converts isolated model calls into coherent, goal-directed behavior. Most production failures originate here, not in the model.</p>
+<p><strong>Runtime and Deployment Services — what separates prototypes from production.</strong> Monitoring, logging, security, human-in-the-loop approvals, and observability. Skipping this layer is the most common reason capable demos become unreliable systems.</p>
+<pre tabindex="0"><code>┌─────────────────────────────────────────────┐
+│               Agent session                 │
+│                                             │
+│   ┌─────────────┐      ┌─────────────────┐  │
+│   │    Model    │◀────▶│  Orchestration  │  │
+│   │  (reasons)  │      │  (owns the loop)│  │
+│   └─────────────┘      └────────┬────────┘  │
+│                                 │           │
+│   ┌─────────────────────────────▼─────────┐ │
+│   │                Tools                  │ │
+│   │   APIs · functions · databases · RAG  │ │
+│   └───────────────────────────────────────┘ │
+└─────────────────────────────────────────────┘
+                     │
+       ┌─────────────▼─────────────┐
+       │    Runtime &amp; deployment   │
+       │  observability · guardrails│
+       │  logging · human-in-loop  │
+       └───────────────────────────┘
+</code></pre><hr>
+<h2 id="chatbot-copilot-agent-different-architectures-not-a-capability-ladder">Chatbot, Copilot, Agent: Different Architectures, Not a Capability Ladder</h2>
+<p>These aren&rsquo;t points on a spectrum — they&rsquo;re fundamentally different system designs with different failure modes and operational contracts.</p>
+<pre tabindex="0"><code>┌─────────────┬──────────────┬──────────────┬──────────────────────────────┐
+│             │   Chatbot    │   Copilot    │           Agent              │
+├─────────────┼──────────────┼──────────────┼──────────────────────────────┤
+│ State       │ Stateless    │Session-scoped│ Persistent                   │
+│ Tools       │ None         │ Suggests     │ Executes                     │
+│ Autonomy    │ Reactive     │ Assistive    │ Goal-directed                │
+│ Fails via   │Hallucination │Bad suggestion│ Unexpected cascading action  │
+│ Who catches │ You review   │ You act on   │ Nobody, unless you built     │
+│ failures    │ output       │ output       │ the guardrails               │
+└─────────────┴──────────────┴──────────────┴──────────────────────────────┘
+</code></pre><p>The failure mode column is what matters. Agents introduce a new risk class: autonomous actions with real consequences — financial, legal, reputational. Design your system around its actual failure modes, not the ones you hope it avoids. Audit logs, guardrails, and rollback mechanisms aren&rsquo;t polish — they&rsquo;re load-bearing.</p>
+<hr>
+<h2 id="the-autonomy-spectrum">The Autonomy Spectrum</h2>
+<p>Not every agent needs maximum autonomy. Matching autonomy level to the task is one of the most underrated architectural decisions.</p>
+<pre tabindex="0"><code>Level 0 — Pure reasoning
+  Model only. No tools, no state.
+  Capable for analytical tasks where all needed context fits in the prompt.
+  │
+Level 1 — Connected
+  Model + tools for data fetching and simple actions.
+  Where most production agents actually live today.
+  Most should stay here.
+  │
+Level 2 — Strategic
+  Multi-step planning with cross-iteration context maintenance.
+  The model reasons about sequences, not just immediate next steps.
+  Context degradation becomes a real risk.
+  │
+Level 3 — Collaborative
+  Multiple specialized agents coordinated by an orchestrator.
+  Coordination overhead rises sharply.
+  Communication failures become the new bottleneck.
+  │
+Level 4 — Self-evolving
+  The system modifies its own tools, prompts, or behavior.
+  Still largely research or heavily guarded production.
+  Requires sandboxing and mandatory human oversight.
+</code></pre><p>Most teams ship Level 1 while targeting Level 2. That gap is where reliability dies.</p>
+<p><strong>The rule:</strong> start at the lowest level that solves the problem. Only move up when reliability is proven and the use case genuinely demands it. Higher levels add coordination complexity faster than they add value.</p>
+<hr>
+<h2 id="how-your-job-changes-as-a-builder">How Your Job Changes as a Builder</h2>
+<p>Traditional software development is deterministic — you code every path explicitly. Agent development is closer to directing a capable but non-deterministic system: you define the goal, equip it with tools, craft the system prompt, and shape behavior through context at each iteration.</p>
+<p>Control flow becomes probabilistic. The instinct is to compensate with endless conditionals and guardrails — but often that means fighting the architecture rather than leveraging it.</p>
+<p>Your highest-leverage skill shifts from writing logic to <strong>context engineering</strong>: the deliberate assembly of what goes into the model&rsquo;s context window at each iteration. Every token costs latency, money, and signal quality. The model&rsquo;s reasoning quality is bounded entirely by the quality of this assembly.</p>
+<p>Expect to spend more time on observability and failure recovery than on the happy path. The happy path in an agent is a minority of real sessions.</p>
+<hr>
+<h2 id="the-questions-to-ask-before-you-build">The Questions to Ask Before You Build</h2>
+<p>Skip &ldquo;Is this an agent?&rdquo; Ask: <strong>what level of autonomy does this task actually require?</strong></p>
+<p>Before writing any orchestration code:</p>
+<pre tabindex="0"><code>┌─────────────────────────────────────────────────────────────────────┐
+│  Pre-build checklist                                                │
+├─────────────────────────────────────────────────────────────────────┤
+│  What specific decisions or actions will the system make           │
+│  autonomously?                                                      │
+│                                                                     │
+│  What are the failure consequences, and what does recovery         │
+│  look like?                                                         │
+│                                                                     │
+│  What triggers each loop iteration?                                │
+│                                                                     │
+│  What tools can it call, and what real-world impact can            │
+│  those calls have?                                                  │
+│                                                                     │
+│  Are actions auto-executed or human-approved?                      │
+│                                                                     │
+│  How is failure detected, logged, and recovered?                   │
+│  What audit trail exists?                                           │
+│                                                                     │
+│  What is the blast radius if a single session goes wrong?          │
+└─────────────────────────────────────────────────────────────────────┘
+</code></pre><p>Vague answers mean prototype. Production agents are observable, auditable, and recoverable by design — not as an afterthought.</p>
+<hr>
+<h2 id="whats-next">What&rsquo;s Next</h2>
+<p>The definition, components, and autonomy model give you the mental framework. The harder questions are about the plumbing: how memory is designed, how tools are built to fail gracefully, how orchestration patterns differ and when to use each, how multi-agent systems coordinate without producing race conditions, and how observability is instrumented so you can debug a session after the fact.</p>
+<p>That&rsquo;s what <a href="/posts/ai-agent-architecture-memory-tools-orchestration/">Part 2</a> covers.</p>
+]]></content:encoded></item><item><title>Claude Code in the Terminal: The Deep-Dive</title><link>https://blog.yottadynamics.com/posts/claude-code-in-the-terminal/</link><pubDate>Wed, 01 Apr 2026 09:00:00 -0400</pubDate><guid>https://blog.yottadynamics.com/posts/claude-code-in-the-terminal/</guid><description>Most teams use Claude Code like a smart autocomplete. The teams getting real leverage treat it as an engineering platform — with CLAUDE.md, permissions, hooks, sub-agents, skills, and CI/CD integration designed in from the start.</description><category>developer-tools</category><category>ai-infrastructure</category><category>operations</category><category>platform-engineering</category><enclosure url="https://blog.yottadynamics.com/images/posts/claude-code-in-the-terminal.svg" type="image/svg+xml"/><content:encoded><![CDATA[<p>Most teams use Claude Code like a smarter autocomplete. They open it, type a request, and close it. The teams getting real compounding leverage have done something different: they treat Claude Code as an engineering platform with a configuration layer, a memory system, a permission model, a hook pipeline, a skills library, and a sub-agent runtime — and they commit all of it to git.</p>
+<p>This is the setup that makes that possible.</p>
+<hr>
+<h2 id="claudemd--the-project-brain">CLAUDE.md — the project brain</h2>
+<p>CLAUDE.md is the most important file in your Claude Code setup. It is read automatically at session start, before any user message. It is your project&rsquo;s coding constitution, onboarding doc, and persistent context combined.</p>
+<p>Resolution order (lowest to highest priority):</p>
+<ol>
+<li>Managed org policy (<code>/etc/claude-code/CLAUDE.md</code> on Linux, equivalent on macOS/Windows)</li>
+<li>User global (<code>~/.claude/CLAUDE.md</code>)</li>
+<li>Ancestor directories (walked upward from cwd)</li>
+<li>Project root (<code>./CLAUDE.md</code> or <code>./.claude/CLAUDE.md</code>)</li>
+<li>Subdirectory files (loaded on-demand when Claude enters that directory)</li>
+<li>Personal overrides (<code>./CLAUDE.local.md</code> — <code>.gitignore</code> this)</li>
+</ol>
+<p>Use <code>@path/to/file.md</code> imports to break CLAUDE.md into modules. Place path-specific rules in <code>.claude/rules/</code> with YAML frontmatter. Prefix any message with <code>#</code> to write to CLAUDE.md instantly. Run <code>/init</code> on an existing project to generate a starter file from your repo automatically. Keep each file under 200 lines for best adherence.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-markdown" data-lang="markdown"><span style="display:flex;"><span># Project: Payments API
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">## Tech Stack
+</span></span></span><span style="display:flex;"><span><span style="color:#66d9ef">-</span> Runtime: Node.js 20 + TypeScript 5.4 (strict mode)
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">-</span> Framework: Fastify 4 (NOT Express)
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">-</span> ORM: Prisma 5 with PostgreSQL 16
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">-</span> Testing: Vitest + Supertest
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">## Architecture Rules
+</span></span></span><span style="display:flex;"><span><span style="color:#66d9ef">-</span> All business logic lives in <span style="color:#e6db74">`src/services/`</span> — controllers are thin
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">-</span> All monetary amounts stored in cents (integer), never floats
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">-</span> Use <span style="color:#e6db74">`Result`</span> pattern (neverthrow) — never throw from service layer
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">-</span> Every public service method must have a corresponding unit test
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">## Key Commands
+</span></span></span><span style="display:flex;"><span><span style="color:#66d9ef">-</span> <span style="color:#e6db74">`npm run dev`</span>         — start dev server (port 3000)
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">-</span> <span style="color:#e6db74">`npm run test`</span>        — run full test suite
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">-</span> <span style="color:#e6db74">`npm run db:migrate`</span>  — apply pending Prisma migrations
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">## PR Conventions
+</span></span></span><span style="display:flex;"><span><span style="color:#66d9ef">-</span> Branch: <span style="color:#e6db74">`feat/`</span>, <span style="color:#e6db74">`fix/`</span>, <span style="color:#e6db74">`chore/`</span>, <span style="color:#e6db74">`refactor/`</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">-</span> Commits: Conventional Commits format
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">-</span> Always run <span style="color:#e6db74">`npm run test &amp;&amp; npm run lint`</span> before opening a PR
+</span></span></code></pre></div><hr>
+<h2 id="memory-architecture">Memory architecture</h2>
+<p>Three distinct layers operate at different scopes:</p>
+<p><strong>Layer 1 — CLAUDE.md (explicit declarative memory).</strong> Human-written, version-controlled, always loaded. Ground truth for project knowledge.</p>
+<p><strong>Layer 2 — Auto-memory (<code>~/.claude/projects/&lt;hash&gt;/memory/</code>).</strong> Claude writes structured files when it learns something worth persisting across sessions. <code>MEMORY.md</code> is the index, truncated at 200 lines. Disable with <code>CLAUDE_CODE_DISABLE_AUTO_MEMORY=1</code> for full manual control.</p>
+<p><strong>Layer 3 — In-session context window.</strong> Lost on <code>/clear</code> or exit. Use <code>/compact</code> to summarize and compress before it fills. Use <code>/rewind</code> to return to any earlier checkpoint in the session.</p>
+<p>The <code>/memory</code> command opens both CLAUDE.md and the auto-memory folder, shows which files are currently loaded, and lets you toggle auto-memory on or off.</p>
+<hr>
+<h2 id="context-management-and-compaction">Context management and compaction</h2>
+<p>The context window fills up. How you handle that determines whether long sessions degrade or stay coherent.</p>
+<p><strong><code>/compact</code></strong> summarizes the current conversation into a compressed handoff and continues from there. It preserves the goal and key decisions while discarding low-signal exchange history. Use it proactively — before the window is full, not after Claude starts losing track.</p>
+<p><strong><code>/clear</code></strong> wipes the context entirely. Use it when starting a genuinely new task rather than letting unrelated history pollute the next one.</p>
+<p><strong><code>/context</code></strong> shows current token usage — input tokens consumed, percentage of window used, and estimated remaining capacity. Check it before starting a long agentic run so you know whether to compact first.</p>
+<p><strong><code>/rewind</code></strong> lets you time-travel to any previous checkpoint in the session. Every tool call creates an implicit checkpoint. If Claude takes a wrong turn, rewind to before it happened rather than trying to undo the effects manually.</p>
+<p>For long-running projects, seed auto-memory with a handoff file: a structured <code>memory/MEMORY.md</code> containing a progress log, key decisions made, and a &ldquo;Next Session: Start Here&rdquo; section that gives the next session immediate orientation.</p>
+<hr>
+<h2 id="permission-system">Permission system</h2>
+<p>Permissions control which tools Claude can invoke and when it needs to ask. Defined in <code>.claude/settings.json</code>:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;permissions&#34;</span>: {
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&#34;allow&#34;</span>: [
+</span></span><span style="display:flex;"><span>      <span style="color:#e6db74">&#34;Read&#34;</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#e6db74">&#34;Glob&#34;</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#e6db74">&#34;Grep&#34;</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#e6db74">&#34;Bash(npm run *)&#34;</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#e6db74">&#34;Bash(git diff*)&#34;</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#e6db74">&#34;Bash(git log*)&#34;</span>
+</span></span><span style="display:flex;"><span>    ],
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&#34;deny&#34;</span>: [
+</span></span><span style="display:flex;"><span>      <span style="color:#e6db74">&#34;Bash(rm *)&#34;</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#e6db74">&#34;Bash(git push*)&#34;</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#e6db74">&#34;WebFetch&#34;</span>
+</span></span><span style="display:flex;"><span>    ]
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p><code>allow</code> and <code>deny</code> both support glob patterns. <code>deny</code> takes precedence over <code>allow</code>. Tool names match Claude&rsquo;s internal tool names: <code>Read</code>, <code>Write</code>, <code>Edit</code>, <code>Bash</code>, <code>Glob</code>, <code>Grep</code>, <code>WebFetch</code>, <code>WebSearch</code>, <code>Agent</code>, etc.</p>
+<p><strong>The five permission modes</strong> (set with <code>--permission-mode</code> or <code>/permissions</code>):</p>
+<ul>
+<li><strong><code>default</code></strong> — prompts for each tool call that isn&rsquo;t pre-approved. Safe for interactive sessions.</li>
+<li><strong><code>acceptEdits</code></strong> — auto-approves file edits, prompts for Bash and network calls.</li>
+<li><strong><code>plan</code></strong> — read-only mode. Claude can inspect files and reason but cannot write, run commands, or take action. Use this to review a plan before authorizing execution.</li>
+<li><strong><code>auto</code></strong> — intelligent classifier approves low-risk actions automatically, prompts on high-risk ones. The right default for most interactive sessions once you trust the project setup.</li>
+<li><strong><code>bypassPermissions</code></strong> — skips all prompts. Only safe inside isolated containers. Never use on a machine with credentials, live databases, or a production environment.</li>
+</ul>
+<p>For CI pipelines, combine <code>--permission-mode plan</code> with an explicit <code>--allowedTools</code> whitelist to give Claude exactly the access the job needs and nothing more.</p>
+<hr>
+<h2 id="plan-mode">Plan mode</h2>
+<p>Plan mode (<code>--permission-mode plan</code> or <code>/plan</code>) is read-only. Claude can read files, search the codebase, reason about the problem, and produce a detailed implementation plan — but it cannot write files, run commands, or take any action.</p>
+<p>Use it at the start of any non-trivial task:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>claude --permission-mode plan -p <span style="color:#e6db74">&#34;design the migration from REST to GraphQL for the orders service&#34;</span>
+</span></span></code></pre></div><p>Claude will read the relevant code, reason through the approach, identify risks, and produce a step-by-step plan. Review it, adjust it, then re-run without <code>plan</code> to execute. This pattern eliminates the most common source of wasted agentic work: Claude executing a plausible-but-wrong approach for ten steps before you realize the direction was off.</p>
+<p><code>/plan</code> inside an interactive session switches to plan mode for the current turn without changing the session&rsquo;s permission mode permanently.</p>
+<hr>
+<h2 id="checkpoints">Checkpoints</h2>
+<p>Every tool call creates an implicit checkpoint — a snapshot of the conversation and file state at that point. Checkpoints are how <code>/rewind</code> works.</p>
+<p>This matters for agentic runs. If Claude is making a sequence of file changes and takes a wrong turn at step 7, you do not need to manually undo each change. Use <code>/rewind</code> to select the checkpoint before the bad decision, adjust your instruction, and continue from there.</p>
+<p>Checkpoints also matter when working with worktrees (<code>--worktree</code>). The worktree isolates Claude&rsquo;s changes from your working tree entirely — changes live in a separate git branch. You review the diff and merge what you want. Combined with checkpoints, this gives you a full undo tree for agentic work.</p>
+<p>For long agentic runs in CI, <code>--max-turns</code> creates a hard ceiling on how many tool calls Claude can make before stopping. Use it as a cost and safety valve: if a run hits the limit, it exits cleanly and you can inspect the partial output rather than watching an uncontrolled loop run up a bill.</p>
+<hr>
+<h2 id="slash-commands-reference">Slash commands reference</h2>
+<p>The commands used most often in practice:</p>
+<p><strong>Context and memory</strong></p>
+<table>
+  <thead>
+      <tr>
+          <th>Command</th>
+          <th>What it does</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td><code>/clear</code></td>
+          <td>Wipe conversation history and start fresh</td>
+      </tr>
+      <tr>
+          <td><code>/compact</code></td>
+          <td>Summarize and compress context, continue session</td>
+      </tr>
+      <tr>
+          <td><code>/context</code></td>
+          <td>Show token usage and remaining window capacity</td>
+      </tr>
+      <tr>
+          <td><code>/rewind</code></td>
+          <td>Return to any earlier session checkpoint</td>
+      </tr>
+      <tr>
+          <td><code>/memory</code></td>
+          <td>Open CLAUDE.md and auto-memory, toggle auto-memory</td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>Configuration</strong></p>
+<table>
+  <thead>
+      <tr>
+          <th>Command</th>
+          <th>What it does</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td><code>/init</code></td>
+          <td>Generate starter CLAUDE.md from current repo</td>
+      </tr>
+      <tr>
+          <td><code>/model</code></td>
+          <td>Switch model for the current session</td>
+      </tr>
+      <tr>
+          <td><code>/permissions</code></td>
+          <td>View and edit tool permissions interactively</td>
+      </tr>
+      <tr>
+          <td><code>/config</code></td>
+          <td>Open full settings editor</td>
+      </tr>
+      <tr>
+          <td><code>/plan</code></td>
+          <td>Switch current turn to plan (read-only) mode</td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>Development workflow</strong></p>
+<table>
+  <thead>
+      <tr>
+          <th>Command</th>
+          <th>What it does</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td><code>/review</code></td>
+          <td>Structured code review of recent changes</td>
+      </tr>
+      <tr>
+          <td><code>/todos</code></td>
+          <td>Show current task list</td>
+      </tr>
+      <tr>
+          <td><code>/diff</code></td>
+          <td>Interactive diff viewer for pending changes</td>
+      </tr>
+      <tr>
+          <td><code>/simplify</code></td>
+          <td>3-agent review pipeline for recently changed code</td>
+      </tr>
+      <tr>
+          <td><code>/export</code></td>
+          <td>Export conversation to a file</td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>Tasks and agents</strong></p>
+<table>
+  <thead>
+      <tr>
+          <th>Command</th>
+          <th>What it does</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td><code>/tasks</code></td>
+          <td>List and manage background tasks</td>
+      </tr>
+      <tr>
+          <td><code>/batch</code></td>
+          <td>Run parallel tasks in isolated worktrees</td>
+      </tr>
+      <tr>
+          <td><code>/schedule</code></td>
+          <td>Create a recurring scheduled task</td>
+      </tr>
+      <tr>
+          <td><code>/effort</code></td>
+          <td>Set reasoning effort level (Opus 4.6 only)</td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>Diagnostics</strong></p>
+<table>
+  <thead>
+      <tr>
+          <th>Command</th>
+          <th>What it does</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td><code>/doctor</code></td>
+          <td>Diagnose installation and configuration issues</td>
+      </tr>
+      <tr>
+          <td><code>/insights</code></td>
+          <td>Session analytics and usage summary</td>
+      </tr>
+      <tr>
+          <td><code>/security-review</code></td>
+          <td>Quick security scan of recent changes</td>
+      </tr>
+  </tbody>
+</table>
+<p>Custom commands go in <code>.claude/commands/</code> as Markdown files. They appear in the <code>/</code> menu automatically.</p>
+<hr>
+<h2 id="hooks--lifecycle-automation">Hooks — lifecycle automation</h2>
+<p>Hooks attach shell commands, Haiku-based decisions, or sub-agents to events in Claude&rsquo;s execution lifecycle. They are the highest-leverage configuration most teams skip.</p>
+<p>Available events:</p>
+<ul>
+<li><code>PreToolUse</code> / <code>PostToolUse</code> / <code>PostToolUseFailure</code></li>
+<li><code>SessionStart</code> / <code>InstructionsLoaded</code> / <code>UserPromptSubmit</code></li>
+<li><code>SubagentStart</code> / <code>SubagentStop</code></li>
+<li><code>TaskCreated</code> / <code>TaskCompleted</code></li>
+<li><code>PreCompact</code> / <code>PostCompact</code> / <code>PostSession</code></li>
+</ul>
+<p>Defined in <code>.claude/settings.json</code>:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;hooks&#34;</span>: {
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&#34;PreToolUse&#34;</span>: [
+</span></span><span style="display:flex;"><span>      {
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&#34;matcher&#34;</span>: { <span style="color:#f92672">&#34;tool&#34;</span>: <span style="color:#e6db74">&#34;Bash&#34;</span> },
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&#34;command&#34;</span>: <span style="color:#e6db74">&#34;echo &#39;[AUDIT] ${CLAUDE_TOOL_INPUT}&#39; &gt;&gt; ~/.claude/audit.log&#34;</span>
+</span></span><span style="display:flex;"><span>      },
+</span></span><span style="display:flex;"><span>      {
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&#34;matcher&#34;</span>: { <span style="color:#f92672">&#34;tool&#34;</span>: <span style="color:#e6db74">&#34;Bash&#34;</span> },
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&#34;type&#34;</span>: <span style="color:#e6db74">&#34;prompt&#34;</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&#34;prompt&#34;</span>: <span style="color:#e6db74">&#34;Does this bash command look safe to run? Input: ${CLAUDE_TOOL_INPUT}. Reply ALLOW or BLOCK.&#34;</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&#34;on_block&#34;</span>: <span style="color:#e6db74">&#34;abort&#34;</span>
+</span></span><span style="display:flex;"><span>      }
+</span></span><span style="display:flex;"><span>    ],
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&#34;PostToolUse&#34;</span>: [
+</span></span><span style="display:flex;"><span>      {
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&#34;matcher&#34;</span>: { <span style="color:#f92672">&#34;tool&#34;</span>: <span style="color:#e6db74">&#34;Write&#34;</span> },
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&#34;command&#34;</span>: <span style="color:#e6db74">&#34;cd \&#34;$CLAUDE_PROJECT_DIR\&#34; &amp;&amp; npm run lint --silent || true&#34;</span>
+</span></span><span style="display:flex;"><span>      }
+</span></span><span style="display:flex;"><span>    ],
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&#34;PostSession&#34;</span>: [
+</span></span><span style="display:flex;"><span>      {
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&#34;command&#34;</span>: <span style="color:#e6db74">&#34;cd \&#34;$CLAUDE_PROJECT_DIR\&#34; &amp;&amp; npm test -- --reporter=dot 2&gt;&amp;1 | tail -5&#34;</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&#34;async&#34;</span>: <span style="color:#66d9ef">true</span>
+</span></span><span style="display:flex;"><span>      }
+</span></span><span style="display:flex;"><span>    ]
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>Hook types:</p>
+<ul>
+<li><strong><code>command</code></strong> — run a shell command</li>
+<li><strong><code>prompt</code></strong> — ask Haiku to make a decision (e.g. approve or block a tool call)</li>
+<li><strong><code>agent</code></strong> — spawn a full sub-agent</li>
+<li><strong><code>async: true</code></strong> — non-blocking; hook runs in background without holding up Claude</li>
+</ul>
+<p><code>PreToolUse</code> hooks fire even in <code>--dangerously-skip-permissions</code> mode. They are your last-resort guardrail regardless of permission settings.</p>
+<hr>
+<h2 id="skills--reusable-instruction-sets">Skills — reusable instruction sets</h2>
+<p>Skills are reusable, parameterizable instruction sets that can be invoked like slash commands. They live in <code>.claude/skills/</code> (project-level) or <code>~/.claude/skills/</code> (global), each in their own folder with a <code>SKILL.md</code>.</p>
+<pre tabindex="0"><code>.claude/skills/
+├── pr-review/
+│   └── SKILL.md
+├── db-migration/
+│   └── SKILL.md
+└── api-contract/
+    └── SKILL.md
+</code></pre><p>A <code>SKILL.md</code> uses frontmatter to define the trigger, parameters, and description:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-markdown" data-lang="markdown"><span style="display:flex;"><span>---
+</span></span><span style="display:flex;"><span>name: pr-review
+</span></span><span style="display:flex;"><span>description: Full PR review — correctness, tests, security, and style
+</span></span><span style="display:flex;"><span>trigger: /pr-review
+</span></span><span style="display:flex;"><span>params:
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">-</span> name: focus
+</span></span><span style="display:flex;"><span>    description: Optional area to focus on (security, performance, tests)
+</span></span><span style="display:flex;"><span>    required: false
+</span></span><span style="display:flex;"><span>---
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>Review the current git diff thoroughly.
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>{{#if focus}}Focus especially on: {{focus}}.{{/if}}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>Check for:
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">-</span> Logic errors and edge cases
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">-</span> Missing or inadequate tests
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">-</span> Security issues (injection, secrets exposure, insecure defaults)
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">-</span> Consistency with patterns in CLAUDE.md
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">-</span> Anything that would fail in production but pass in a test environment
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>Output a structured review with verdict (approve / request-changes), a summary, and a
+</span></span><span style="display:flex;"><span>bulleted list of specific issues with file paths and line numbers.
+</span></span></code></pre></div><p>Invoke with <code>/pr-review</code> or <code>/pr-review focus=security</code>. Skills compose with hooks — a <code>PostToolUse</code> hook can automatically trigger a skill after every <code>Write</code> call if you want continuous review on file changes.</p>
+<hr>
+<h2 id="sub-agents-and-parallel-execution">Sub-agents and parallel execution</h2>
+<p>Sub-agents are Claude instances with their own context windows, models, tools, personas, and isolation levels. Define them in <code>.claude/agents/</code>:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span>---
+</span></span><span style="display:flex;"><span><span style="color:#f92672">name</span>: <span style="color:#ae81ff">security-reviewer</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">description</span>: <span style="color:#ae81ff">Security audits, threat modeling, and OWASP analysis</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">model</span>: <span style="color:#ae81ff">claude-opus-4-6</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">color</span>: <span style="color:#ae81ff">red</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">isolation</span>: <span style="color:#ae81ff">worktree</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">memory</span>: <span style="color:#ae81ff">project</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">effort</span>: <span style="color:#ae81ff">high</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">background</span>: <span style="color:#66d9ef">false</span>
+</span></span><span style="display:flex;"><span>---
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#ae81ff">You are an expert security engineer. Review code for OWASP Top 10, secrets exposure,</span>
+</span></span><span style="display:flex;"><span><span style="color:#ae81ff">injection vulnerabilities, and insecure data handling. Be specific about file paths,</span>
+</span></span><span style="display:flex;"><span><span style="color:#ae81ff">line numbers, and severity (critical / high / medium / low).</span>
+</span></span></code></pre></div><p>Claude auto-invokes sub-agents based on task matching against their <code>description</code> field. You can also invoke them explicitly: <code>Use the security-reviewer agent to audit src/payments/</code>.</p>
+<p>Two built-in sub-agents are always available:</p>
+<ul>
+<li><strong><code>Explore</code></strong> (Haiku, read-only) — fast codebase searches without touching your context window</li>
+<li><strong><code>Plan</code></strong> (read-only) — planning and architecture reasoning without execution</li>
+</ul>
+<p><strong>Background agents</strong> — set <code>background: true</code> in the frontmatter. The agent runs in a separate session while you continue working. Manage background tasks with <code>/tasks</code>. Kill them with <code>Ctrl+F</code>.</p>
+<p><strong>Agent Teams</strong> coordinate multiple sub-agents across parallel sessions for tasks that exceed a single context window. A lead agent decomposes the work, delegates to teammates, and synthesizes results. Useful for large refactors, cross-service audits, or any task where the codebase is too large to reason about in one pass.</p>
+<hr>
+<h2 id="plugins-and-mcp-servers">Plugins and MCP servers</h2>
+<p>MCP (Model Context Protocol) servers extend Claude Code with tools beyond the built-in set — databases, external APIs, internal services, custom retrieval systems. Configure them in <code>.mcp.json</code> at the project root:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;mcpServers&#34;</span>: {
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&#34;postgres&#34;</span>: {
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;command&#34;</span>: <span style="color:#e6db74">&#34;npx&#34;</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;args&#34;</span>: [<span style="color:#e6db74">&#34;-y&#34;</span>, <span style="color:#e6db74">&#34;@modelcontextprotocol/server-postgres&#34;</span>],
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;env&#34;</span>: {
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&#34;DATABASE_URL&#34;</span>: <span style="color:#e6db74">&#34;${DATABASE_URL}&#34;</span>
+</span></span><span style="display:flex;"><span>      }
+</span></span><span style="display:flex;"><span>    },
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&#34;github&#34;</span>: {
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;command&#34;</span>: <span style="color:#e6db74">&#34;npx&#34;</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;args&#34;</span>: [<span style="color:#e6db74">&#34;-y&#34;</span>, <span style="color:#e6db74">&#34;@modelcontextprotocol/server-github&#34;</span>],
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;env&#34;</span>: {
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&#34;GITHUB_TOKEN&#34;</span>: <span style="color:#e6db74">&#34;${GITHUB_TOKEN}&#34;</span>
+</span></span><span style="display:flex;"><span>      }
+</span></span><span style="display:flex;"><span>    },
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&#34;internal-docs&#34;</span>: {
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;command&#34;</span>: <span style="color:#e6db74">&#34;node&#34;</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;args&#34;</span>: [<span style="color:#e6db74">&#34;./scripts/mcp-docs-server.js&#34;</span>]
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>Once configured, MCP tools appear alongside built-in tools in Claude&rsquo;s toolset. Claude discovers what each server offers and uses them when relevant — no additional prompting required.</p>
+<p>Commit <code>.mcp.json</code>. Env vars reference environment variables rather than hardcoded values, so secrets stay out of the file. For project-specific internal tools (a docs server, a deployment trigger, a staging environment API), a small MCP server is almost always the right abstraction.</p>
+<hr>
+<h2 id="key-cli-flags">Key CLI flags</h2>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#75715e"># Non-interactive: run and exit (essential for CI)</span>
+</span></span><span style="display:flex;"><span>claude -p <span style="color:#e6db74">&#34;run the test suite and summarise failures&#34;</span> --output-format json
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># Resume the most recent conversation</span>
+</span></span><span style="display:flex;"><span>claude -c
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># Start in plan mode — read-only, no writes until you approve</span>
+</span></span><span style="display:flex;"><span>claude --permission-mode plan
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># Isolated git worktree (changes don&#39;t affect your working tree)</span>
+</span></span><span style="display:flex;"><span>claude --worktree
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># Override model for a session</span>
+</span></span><span style="display:flex;"><span>claude --model claude-opus-4-6
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># Set reasoning effort (Opus 4.6 only)</span>
+</span></span><span style="display:flex;"><span>claude --effort high
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># Hard cap on spend for an agentic run</span>
+</span></span><span style="display:flex;"><span>claude --max-budget-usd 2.00
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># Limit agentic turns (safety valve for headless runs)</span>
+</span></span><span style="display:flex;"><span>claude --max-turns <span style="color:#ae81ff">30</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># Force structured JSON output against a schema</span>
+</span></span><span style="display:flex;"><span>claude -p <span style="color:#e6db74">&#34;...&#34;</span> --json-schema <span style="color:#e6db74">&#39;{&#34;type&#34;:&#34;object&#34;,&#34;properties&#34;:{&#34;verdict&#34;:{&#34;type&#34;:&#34;string&#34;}}}&#39;</span> <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>  --output-format json
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># Enable real browser control via Playwright</span>
+</span></span><span style="display:flex;"><span>claude --chrome
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># Add context to the built-in prompt without replacing it</span>
+</span></span><span style="display:flex;"><span>claude --append-system-prompt <span style="color:#e6db74">&#34;You are working on the payments service. Be conservative with schema changes.&#34;</span>
+</span></span></code></pre></div><p><code>--append-system-prompt</code> is preferred over <code>--system-prompt</code>. The latter replaces the entire built-in prompt, which strips important behavioral scaffolding that Claude Code relies on internally.</p>
+<hr>
+<h2 id="cicd-and-headless-pipelines">CI/CD and headless pipelines</h2>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span>- <span style="color:#f92672">name</span>: <span style="color:#ae81ff">Claude review</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">env</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">ANTHROPIC_API_KEY</span>: <span style="color:#ae81ff">${{ secrets.ANTHROPIC_API_KEY }}</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">run</span>: |<span style="color:#e6db74">
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    claude -p &#34;Review the diff for correctness, test coverage, and security issues.
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">               Output JSON: {verdict, summary, issues[]}&#34; \
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">           --output-format json \
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">           --permission-mode plan \
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">           --max-turns 20 \
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">           --max-budget-usd 1.00 \
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    | tee review.json
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    jq -r &#39;.summary&#39; review.json
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    jq -e &#39;.verdict == &#34;approve&#34;&#39; review.json</span>
+</span></span></code></pre></div><p>Use <code>stream-json</code> output format to process results line-by-line in long-running pipeline steps. Use <code>--max-turns</code> and <code>--max-budget-usd</code> together as a two-layer safety valve on every headless run.</p>
+<hr>
+<h2 id="the-file-structure-to-commit">The file structure to commit</h2>
+<pre tabindex="0"><code>your-project/
+├── CLAUDE.md                  # shared project brain — commit this
+├── CLAUDE.local.md            # personal overrides — .gitignore this
+├── .mcp.json                  # MCP server config — commit this
+└── .claude/
+    ├── settings.json          # shared permissions and hooks — commit this
+    ├── settings.local.json    # personal overrides — .gitignore this
+    ├── agents/                # sub-agent definitions — commit these
+    ├── commands/              # custom slash commands — commit these
+    ├── skills/                # reusable instruction sets — commit these
+    │   └── pr-review/
+    │       └── SKILL.md
+    ├── rules/                 # modular CLAUDE.md rules — commit these
+    │   ├── api.md
+    │   └── frontend/
+    └── hooks/                 # optional shell scripts — commit these
+</code></pre><p>Treat <code>.claude/</code>, <code>CLAUDE.md</code>, and <code>.mcp.json</code> like your CI configuration. They define how Claude behaves for everyone on the project. Review changes to them in PRs the same way you would review changes to <code>.github/workflows/</code>.</p>
+<p>Run <code>/doctor</code> on any new machine to surface installation issues. Run <code>/memory</code> at the start of any new project to see what Claude has already loaded. Run <code>/init</code> if CLAUDE.md doesn&rsquo;t exist yet.</p>
+<h2 id="next-step">Next step</h2>
+<p>If your team is evaluating how to integrate Claude Code into an engineering workflow — alongside existing CI/CD, code review, and operational tooling — <a href="https://yottadynamics.com/#contact">book a discovery call</a> to talk through the specifics.</p>
+]]></content:encoded></item></channel></rss>
