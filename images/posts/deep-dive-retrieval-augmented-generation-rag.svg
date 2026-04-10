@@ -1,0 +1,162 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">Deep Dive into Retrieval-Augmented Generation (RAG) — cover image</title>
+  <desc id="desc">Abstract cover showing the full RAG pipeline: offline indexing with vector and graph pipelines, and online querying with hybrid search, re-ranking, and grounded LLM generation.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1200" y2="630" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#050D1A"/>
+      <stop offset="1" stop-color="#0A1624"/>
+    </linearGradient>
+    <linearGradient id="cyanBadge" x1="796" y1="72" x2="1060" y2="118" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#00D4FF"/>
+      <stop offset="1" stop-color="#00A8C8"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <rect x="54" y="54" width="1092" height="522" rx="28" fill="#07101E" stroke="#1E2A42" stroke-width="2"/>
+
+  <!-- Subtle grid lines -->
+  <line x1="82" y1="170" x2="1118" y2="170" stroke="#1E2A42" stroke-width="1" opacity="0.6"/>
+  <line x1="82" y1="256" x2="1118" y2="256" stroke="#1E2A42" stroke-width="1" opacity="0.5"/>
+  <line x1="82" y1="340" x2="1118" y2="340" stroke="#1E2A42" stroke-width="1" opacity="0.5"/>
+  <line x1="82" y1="422" x2="1118" y2="422" stroke="#1E2A42" stroke-width="1" opacity="0.4"/>
+
+  <!-- Corner registration marks -->
+  <text x="68" y="76" fill="#1E2A42" font-family="monospace" font-size="10" opacity="0.5">+</text>
+  <text x="1124" y="76" fill="#1E2A42" font-family="monospace" font-size="10" opacity="0.5">+</text>
+  <text x="68" y="568" fill="#1E2A42" font-family="monospace" font-size="10" opacity="0.5">+</text>
+  <text x="1124" y="568" fill="#1E2A42" font-family="monospace" font-size="10" opacity="0.5">+</text>
+
+  <!-- ── INDEXING PIPELINE (top row) ── -->
+  <text x="104" y="98" fill="#8B9BB4" font-family="Arial, Helvetica, sans-serif" font-size="10" font-weight="700" letter-spacing="2.5">INDEXING PIPELINE</text>
+
+  <!-- Sources -->
+  <rect x="104" y="108" width="138" height="52" rx="8" fill="#0D1A2E" stroke="#8B9BB4" stroke-width="1"/>
+  <text x="173" y="131" text-anchor="middle" fill="#8B9BB4" font-family="Arial, Helvetica, sans-serif" font-size="11" font-weight="700">SOURCES</text>
+  <text x="173" y="148" text-anchor="middle" fill="#4A5A74" font-family="Arial, Helvetica, sans-serif" font-size="10">PDFs · APIs · DBs</text>
+
+  <line x1="242" y1="134" x2="260" y2="134" stroke="#8B9BB4" stroke-width="2"/>
+  <polygon points="256,128 268,134 256,140" fill="#8B9BB4"/>
+
+  <!-- Chunking -->
+  <rect x="268" y="108" width="138" height="52" rx="8" fill="#0D1A2E" stroke="#8B9BB4" stroke-width="1"/>
+  <text x="337" y="131" text-anchor="middle" fill="#8B9BB4" font-family="Arial, Helvetica, sans-serif" font-size="11" font-weight="700">CHUNKING</text>
+  <text x="337" y="148" text-anchor="middle" fill="#4A5A74" font-family="Arial, Helvetica, sans-serif" font-size="10">512–1024 tokens</text>
+
+  <line x1="406" y1="134" x2="424" y2="134" stroke="#00D4FF" stroke-width="2"/>
+  <polygon points="420,128 432,134 420,140" fill="#00D4FF"/>
+
+  <!-- Embedding -->
+  <rect x="432" y="108" width="138" height="52" rx="8" fill="#0A1630" stroke="#00D4FF" stroke-width="1.5"/>
+  <text x="501" y="131" text-anchor="middle" fill="#00D4FF" font-family="Arial, Helvetica, sans-serif" font-size="11" font-weight="700">EMBEDDING</text>
+  <text x="501" y="148" text-anchor="middle" fill="#3A5A80" font-family="Arial, Helvetica, sans-serif" font-size="10">Dense vectors</text>
+
+  <line x1="570" y1="134" x2="588" y2="134" stroke="#00D4FF" stroke-width="2"/>
+  <polygon points="584,128 596,134 584,140" fill="#00D4FF"/>
+
+  <!-- Vector Store -->
+  <rect x="596" y="108" width="138" height="52" rx="8" fill="#0A1630" stroke="#00D4FF" stroke-width="1.5"/>
+  <text x="665" y="131" text-anchor="middle" fill="#00D4FF" font-family="Arial, Helvetica, sans-serif" font-size="11" font-weight="700">VECTOR STORE</text>
+  <text x="665" y="148" text-anchor="middle" fill="#3A5A80" font-family="Arial, Helvetica, sans-serif" font-size="10">ANN index</text>
+
+  <!-- ── GRAPH PIPELINE (second row) ── -->
+  <text x="104" y="184" fill="#00A8C8" font-family="Arial, Helvetica, sans-serif" font-size="10" font-weight="700" letter-spacing="2.5">GRAPH PIPELINE</text>
+
+  <!-- Dashed branch from Sources down -->
+  <line x1="173" y1="160" x2="173" y2="192" stroke="#3A6070" stroke-width="1.5" stroke-dasharray="4 3"/>
+
+  <!-- Entity Extraction -->
+  <rect x="104" y="192" width="138" height="52" rx="8" fill="#081A18" stroke="#00A8C8" stroke-width="1.5"/>
+  <text x="173" y="215" text-anchor="middle" fill="#00A8C8" font-family="Arial, Helvetica, sans-serif" font-size="11" font-weight="700">ENTITY EXT.</text>
+  <text x="173" y="232" text-anchor="middle" fill="#2A6060" font-family="Arial, Helvetica, sans-serif" font-size="10">Nodes + relations</text>
+
+  <line x1="242" y1="218" x2="260" y2="218" stroke="#00A8C8" stroke-width="1.5"/>
+  <polygon points="256,212 268,218 256,224" fill="#00A8C8"/>
+
+  <!-- Community Detection -->
+  <rect x="268" y="192" width="138" height="52" rx="8" fill="#081A18" stroke="#00A8C8" stroke-width="1.5"/>
+  <text x="337" y="215" text-anchor="middle" fill="#00A8C8" font-family="Arial, Helvetica, sans-serif" font-size="11" font-weight="700">COMMUNITY</text>
+  <text x="337" y="232" text-anchor="middle" fill="#2A6060" font-family="Arial, Helvetica, sans-serif" font-size="10">Leiden clustering</text>
+
+  <line x1="406" y1="218" x2="424" y2="218" stroke="#00A8C8" stroke-width="1.5"/>
+  <polygon points="420,212 432,218 420,224" fill="#00A8C8"/>
+
+  <!-- Knowledge Graph -->
+  <rect x="432" y="192" width="138" height="52" rx="8" fill="#081A18" stroke="#00A8C8" stroke-width="1.5"/>
+  <text x="501" y="212" text-anchor="middle" fill="#00A8C8" font-family="Arial, Helvetica, sans-serif" font-size="11" font-weight="700">KNOWLEDGE</text>
+  <text x="501" y="228" text-anchor="middle" fill="#00A8C8" font-family="Arial, Helvetica, sans-serif" font-size="11" font-weight="700">GRAPH</text>
+
+  <!-- Dashed arrow from KG node to Vector Store -->
+  <line x1="570" y1="218" x2="650" y2="164" stroke="#1A6070" stroke-width="1.5" stroke-dasharray="4 3"/>
+  <polygon points="648,170 658,158 644,156" fill="#1A6070"/>
+
+  <!-- ── QUERY PIPELINE ── -->
+  <rect x="104" y="270" width="990" height="2" rx="1" fill="#1E2A42"/>
+  <text x="104" y="294" fill="#F5A623" font-family="Arial, Helvetica, sans-serif" font-size="10" font-weight="700" letter-spacing="2.5">QUERY PIPELINE</text>
+
+  <!-- Query -->
+  <rect x="104" y="304" width="120" height="48" rx="8" fill="#1E1002" stroke="#F5A623" stroke-width="1.5"/>
+  <text x="164" y="325" text-anchor="middle" fill="#F5A623" font-family="Arial, Helvetica, sans-serif" font-size="11" font-weight="700">QUERY</text>
+  <text x="164" y="341" text-anchor="middle" fill="#7A5014" font-family="Arial, Helvetica, sans-serif" font-size="10">Natural language</text>
+
+  <line x1="224" y1="328" x2="242" y2="328" stroke="#00D4FF" stroke-width="2"/>
+  <polygon points="238,322 250,328 238,334" fill="#00D4FF"/>
+
+  <!-- Embed -->
+  <rect x="250" y="304" width="120" height="48" rx="8" fill="#0A1630" stroke="#00D4FF" stroke-width="1.5"/>
+  <text x="310" y="325" text-anchor="middle" fill="#00D4FF" font-family="Arial, Helvetica, sans-serif" font-size="11" font-weight="700">EMBED</text>
+  <text x="310" y="341" text-anchor="middle" fill="#2A5070" font-family="Arial, Helvetica, sans-serif" font-size="10">Same model</text>
+
+  <line x1="370" y1="328" x2="388" y2="328" stroke="#00D4FF" stroke-width="2"/>
+  <polygon points="384,322 396,328 384,334" fill="#00D4FF"/>
+
+  <!-- Hybrid Search -->
+  <rect x="396" y="304" width="158" height="48" rx="8" fill="#0A1630" stroke="#00D4FF" stroke-width="2"/>
+  <text x="475" y="325" text-anchor="middle" fill="#00D4FF" font-family="Arial, Helvetica, sans-serif" font-size="11" font-weight="700">HYBRID SEARCH</text>
+  <text x="475" y="341" text-anchor="middle" fill="#2A5070" font-family="Arial, Helvetica, sans-serif" font-size="10">ANN + BM25 + Graph</text>
+
+  <line x1="554" y1="328" x2="572" y2="328" stroke="#8B5CF6" stroke-width="2"/>
+  <polygon points="568,322 580,328 568,334" fill="#8B5CF6"/>
+
+  <!-- Rerank -->
+  <rect x="580" y="304" width="120" height="48" rx="8" fill="#12103A" stroke="#8B5CF6" stroke-width="1.5"/>
+  <text x="640" y="325" text-anchor="middle" fill="#C4B5FD" font-family="Arial, Helvetica, sans-serif" font-size="11" font-weight="700">RERANK</text>
+  <text x="640" y="341" text-anchor="middle" fill="#5A4080" font-family="Arial, Helvetica, sans-serif" font-size="10">Cross-encoder</text>
+
+  <line x1="700" y1="328" x2="718" y2="328" stroke="#8B9BB4" stroke-width="2"/>
+  <polygon points="714,322 726,328 714,334" fill="#8B9BB4"/>
+
+  <!-- Augment -->
+  <rect x="726" y="304" width="120" height="48" rx="8" fill="#0E1A2E" stroke="#8B9BB4" stroke-width="1"/>
+  <text x="786" y="325" text-anchor="middle" fill="#E8EDF5" font-family="Arial, Helvetica, sans-serif" font-size="11" font-weight="700">AUGMENT</text>
+  <text x="786" y="341" text-anchor="middle" fill="#4A5A74" font-family="Arial, Helvetica, sans-serif" font-size="10">Inject context</text>
+
+  <line x1="846" y1="328" x2="864" y2="328" stroke="#00FF88" stroke-width="2"/>
+  <polygon points="860,322 872,328 860,334" fill="#00FF88"/>
+
+  <!-- LLM -->
+  <rect x="872" y="304" width="120" height="48" rx="8" fill="#0A1E14" stroke="#00FF88" stroke-width="1.5"/>
+  <text x="932" y="325" text-anchor="middle" fill="#00FF88" font-family="Arial, Helvetica, sans-serif" font-size="11" font-weight="700">LLM</text>
+  <text x="932" y="341" text-anchor="middle" fill="#1A5030" font-family="Arial, Helvetica, sans-serif" font-size="10">Grounded answer</text>
+
+  <!-- CRAG feedback loop -->
+  <line x1="932" y1="352" x2="932" y2="376" stroke="#F87171" stroke-width="1.5" stroke-dasharray="4 3"/>
+  <line x1="932" y1="376" x2="164" y2="376" stroke="#F87171" stroke-width="1.5" stroke-dasharray="4 3"/>
+  <line x1="164" y1="376" x2="164" y2="352" stroke="#F87171" stroke-width="1.5" stroke-dasharray="4 3"/>
+  <polygon points="158,355 164,343 170,355" fill="#F87171"/>
+  <text x="548" y="392" text-anchor="middle" fill="#F87171" font-family="Arial, Helvetica, sans-serif" font-size="10">CRAG: low confidence triggers re-retrieval</text>
+
+  <!-- ── TECH STACK ROW ── -->
+  <rect x="104" y="408" width="990" height="30" rx="6" fill="#06101C" stroke="#1E2A42" stroke-width="1"/>
+  <text x="599" y="427" text-anchor="middle" fill="#4A5A74" font-family="Arial, Helvetica, sans-serif" font-size="10" font-weight="700" letter-spacing="0.5">Pinecone  ·  Weaviate  ·  Qdrant  ·  Neo4j  ·  LangGraph  ·  LlamaIndex  ·  RAGAS  ·  DeepEval  ·  LangSmith  ·  Arize Phoenix</text>
+
+  <!-- ── BOTTOM TITLE ── -->
+  <text x="104" y="472" fill="#00D4FF" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="700" letter-spacing="4">WITH GRAPHRAG + AGENTIC RETRIEVAL</text>
+  <text x="104" y="528" fill="#E8EDF5" font-family="Arial, Helvetica, sans-serif" font-size="44" font-weight="700">Deep Dive into</text>
+  <text x="104" y="580" fill="#E8EDF5" font-family="Arial, Helvetica, sans-serif" font-size="44" font-weight="700">RAG</text>
+
+  <!-- Accent badge top-right -->
+  <rect x="850" y="70" width="214" height="38" rx="19" fill="url(#cyanBadge)"/>
+  <text x="957" y="94" text-anchor="middle" fill="#050D1A" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="700" letter-spacing="1.5">AI ARCHITECTURE</text>
+</svg>
