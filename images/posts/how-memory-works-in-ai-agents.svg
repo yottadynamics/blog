@@ -1,0 +1,98 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">How Memory Works in AI Agents cover image</title>
+  <desc id="desc">Abstract cover showing the four memory layers of an AI agent and the write–manage–read pipeline loop.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1200" y2="630" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0F0A00"/>
+      <stop offset="1" stop-color="#1E1400"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="796" y1="72" x2="1062" y2="130" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#F97316"/>
+      <stop offset="1" stop-color="#FBBF24"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <rect x="54" y="54" width="1092" height="522" rx="28" fill="#160E00" stroke="#4A3000" stroke-width="2"/>
+
+  <!-- Left: memory layer stack -->
+  <text x="104" y="108" fill="#B85A10" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="700" letter-spacing="1">MEMORY LAYERS</text>
+
+  <!-- Short-term -->
+  <rect x="104" y="120" width="460" height="64" rx="10" fill="#2A1800" stroke="#F97316" stroke-width="2"/>
+  <text x="209" y="148" text-anchor="middle" fill="#F97316" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="700">SHORT-TERM</text>
+  <text x="209" y="168" text-anchor="middle" fill="#B85A10" font-family="Arial, Helvetica, sans-serif" font-size="11">context window · KV cache · session buffer</text>
+  <line x1="190" y1="184" x2="190" y2="200" stroke="#F97316" stroke-width="2" stroke-dasharray="4 3"/>
+
+  <!-- Episodic -->
+  <rect x="104" y="200" width="210" height="64" rx="10" fill="#1E1200" stroke="#FB923C" stroke-width="2"/>
+  <text x="209" y="228" text-anchor="middle" fill="#FB923C" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="700">EPISODIC</text>
+  <text x="209" y="248" text-anchor="middle" fill="#B85A10" font-family="Arial, Helvetica, sans-serif" font-size="11">timestamped events</text>
+
+  <!-- Semantic -->
+  <rect x="354" y="200" width="210" height="64" rx="10" fill="#1E1200" stroke="#FB923C" stroke-width="2"/>
+  <text x="459" y="228" text-anchor="middle" fill="#FB923C" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="700">SEMANTIC</text>
+  <text x="459" y="248" text-anchor="middle" fill="#B85A10" font-family="Arial, Helvetica, sans-serif" font-size="11">facts · preferences</text>
+
+  <line x1="334" y1="264" x2="334" y2="280" stroke="#F97316" stroke-width="2" stroke-dasharray="4 3"/>
+
+  <!-- Procedural -->
+  <rect x="104" y="280" width="460" height="64" rx="10" fill="#1E1200" stroke="#FBBF24" stroke-width="2"/>
+  <text x="334" y="308" text-anchor="middle" fill="#FBBF24" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="700">PROCEDURAL</text>
+  <text x="334" y="328" text-anchor="middle" fill="#B08010" font-family="Arial, Helvetica, sans-serif" font-size="11">prompts · workflows · tool schemas · LoRA</text>
+
+  <!-- Loop label -->
+  <text x="104" y="382" fill="#B85A10" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="700" letter-spacing="1">AGENT LOOP</text>
+
+  <!-- Observe → Remember → Act → Reflect → Update -->
+  <rect x="104" y="394" width="78" height="36" rx="8" fill="#1A1000" stroke="#F97316" stroke-width="1.5"/>
+  <text x="143" y="417" text-anchor="middle" fill="#F97316" font-family="Arial, Helvetica, sans-serif" font-size="11" font-weight="700">OBSERVE</text>
+  <text x="183" y="417" fill="#F97316" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="700">→</text>
+
+  <rect x="198" y="394" width="84" height="36" rx="8" fill="#1A1000" stroke="#FB923C" stroke-width="1.5"/>
+  <text x="240" y="417" text-anchor="middle" fill="#FB923C" font-family="Arial, Helvetica, sans-serif" font-size="11" font-weight="700">REMEMBER</text>
+  <text x="283" y="417" fill="#F97316" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="700">→</text>
+
+  <rect x="298" y="394" width="60" height="36" rx="8" fill="#1A1000" stroke="#FBBF24" stroke-width="1.5"/>
+  <text x="328" y="417" text-anchor="middle" fill="#FBBF24" font-family="Arial, Helvetica, sans-serif" font-size="11" font-weight="700">ACT</text>
+  <text x="359" y="417" fill="#F97316" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="700">→</text>
+
+  <rect x="374" y="394" width="74" height="36" rx="8" fill="#1A1000" stroke="#FCD34D" stroke-width="1.5"/>
+  <text x="411" y="417" text-anchor="middle" fill="#FCD34D" font-family="Arial, Helvetica, sans-serif" font-size="11" font-weight="700">REFLECT</text>
+  <text x="449" y="417" fill="#F97316" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="700">→</text>
+
+  <rect x="464" y="394" width="72" height="36" rx="8" fill="#1A1000" stroke="#FDE68A" stroke-width="1.5"/>
+  <text x="500" y="417" text-anchor="middle" fill="#FDE68A" font-family="Arial, Helvetica, sans-serif" font-size="11" font-weight="700">UPDATE</text>
+
+  <!-- Right: pipeline cards -->
+  <text x="660" y="108" fill="#B85A10" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="700" letter-spacing="1">WRITE–MANAGE–READ PIPELINE</text>
+
+  <rect x="656" y="122" width="420" height="64" rx="8" fill="#1A1000" stroke="#F97316" stroke-width="1.5"/>
+  <text x="672" y="148" fill="#F97316" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="700">1. Extraction &amp; Encoding</text>
+  <text x="672" y="168" fill="#D4A070" font-family="Arial, Helvetica, sans-serif" font-size="11">Chunk · embed · enrich with metadata · ADD / UPDATE /</text>
+  <text x="672" y="182" fill="#D4A070" font-family="Arial, Helvetica, sans-serif" font-size="11">DELETE / SKIP — importance scored at write time.</text>
+
+  <rect x="656" y="198" width="420" height="64" rx="8" fill="#1A1000" stroke="#FB923C" stroke-width="1.5"/>
+  <text x="672" y="224" fill="#FB923C" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="700">2. Storage</text>
+  <text x="672" y="244" fill="#D4A070" font-family="Arial, Helvetica, sans-serif" font-size="11">Vector DB (HNSW) + knowledge graph + relational</text>
+  <text x="672" y="258" fill="#D4A070" font-family="Arial, Helvetica, sans-serif" font-size="11">store for ACID state. Hybrid by default.</text>
+
+  <rect x="656" y="274" width="420" height="64" rx="8" fill="#1A1000" stroke="#FBBF24" stroke-width="1.5"/>
+  <text x="672" y="300" fill="#FBBF24" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="700">3. Management</text>
+  <text x="672" y="320" fill="#D4A070" font-family="Arial, Helvetica, sans-serif" font-size="11">Summarize · reflect · consolidate (cosine &gt;0.85) ·</text>
+  <text x="672" y="334" fill="#D4A070" font-family="Arial, Helvetica, sans-serif" font-size="11">decay old memories · prune contradictions.</text>
+
+  <rect x="656" y="350" width="420" height="64" rx="8" fill="#1A1000" stroke="#FCD34D" stroke-width="1.5"/>
+  <text x="672" y="376" fill="#FCD34D" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="700">4. Retrieval</text>
+  <text x="672" y="396" fill="#D4A070" font-family="Arial, Helvetica, sans-serif" font-size="11">ANN (top-k) + temporal filter + graph traversal +</text>
+  <text x="672" y="410" fill="#D4A070" font-family="Arial, Helvetica, sans-serif" font-size="11">MMR re-rank → inject into system prompt.</text>
+
+  <!-- Accent badge -->
+  <rect x="796" y="466" width="266" height="46" rx="23" fill="url(#accent)"/>
+  <text x="929" y="495" text-anchor="middle" fill="#0F0A00" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="700" letter-spacing="1.5">AI AGENTS IN PRODUCTION</text>
+
+  <!-- Main headline -->
+  <text x="104" y="488" fill="#B85A10" font-family="Arial, Helvetica, sans-serif" font-size="20" font-weight="700" letter-spacing="4">MEMORY IN AI AGENTS</text>
+  <text x="104" y="544" fill="#FFF8F0" font-family="Arial, Helvetica, sans-serif" font-size="42" font-weight="700">From Stateless</text>
+  <text x="104" y="598" fill="#FFF8F0" font-family="Arial, Helvetica, sans-serif" font-size="42" font-weight="700">to Persistent</text>
+</svg>
