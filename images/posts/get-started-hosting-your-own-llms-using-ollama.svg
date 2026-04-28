@@ -1,0 +1,72 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">Get Started Hosting Your Own LLMs Using Ollama cover image</title>
+  <desc id="desc">Abstract cover with a local terminal, model cards, and a private AI workflow theme.</desc>
+  <defs>
+    <linearGradient id="bg" x1="40" y1="40" x2="1160" y2="590" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#081018"/>
+      <stop offset="1" stop-color="#123448"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="780" y1="72" x2="1070" y2="128" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FDE68A"/>
+      <stop offset="1" stop-color="#34D399"/>
+    </linearGradient>
+    <linearGradient id="panel" x1="120" y1="110" x2="620" y2="360" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0C1C28"/>
+      <stop offset="1" stop-color="#102636"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <rect x="54" y="54" width="1092" height="522" rx="28" fill="#081722" stroke="#24506B" stroke-width="2"/>
+
+  <rect x="108" y="96" width="520" height="248" rx="14" fill="url(#panel)" stroke="#2D6484" stroke-width="1.5"/>
+  <rect x="108" y="96" width="520" height="36" rx="14" fill="#102838" stroke="#2D6484" stroke-width="1.5"/>
+  <rect x="108" y="114" width="520" height="18" fill="#102838"/>
+
+  <circle cx="136" cy="114" r="7" fill="#F87171" opacity="0.8"/>
+  <circle cx="158" cy="114" r="7" fill="#FBBF24" opacity="0.8"/>
+  <circle cx="180" cy="114" r="7" fill="#34D399" opacity="0.8"/>
+  <text x="370" y="119" text-anchor="middle" fill="#7FB1C8" font-family="monospace, Courier New" font-size="12">ollama — local terminal</text>
+
+  <text x="130" y="160" fill="#34D399" font-family="monospace, Courier New" font-size="14">$ ollama run gemma3</text>
+  <text x="130" y="186" fill="#CDEAF4" font-family="monospace, Courier New" font-size="13" opacity="0.9">pulling manifest ...</text>
+  <text x="130" y="210" fill="#CDEAF4" font-family="monospace, Courier New" font-size="13" opacity="0.9">pulling layers ...</text>
+  <text x="130" y="234" fill="#86EFAC" font-family="monospace, Courier New" font-size="13">success</text>
+  <text x="130" y="266" fill="#FDE68A" font-family="monospace, Courier New" font-size="13">&gt;&gt;&gt; Explain local LLM hosting in plain English</text>
+  <text x="130" y="296" fill="#D9F3FF" font-family="monospace, Courier New" font-size="13" opacity="0.95">You run the model on your own machine, keep the data local,</text>
+  <text x="130" y="318" fill="#D9F3FF" font-family="monospace, Courier New" font-size="13" opacity="0.95">and expose a simple API for your apps and tools.</text>
+
+  <rect x="694" y="110" width="150" height="74" rx="12" fill="#102838" stroke="#34D399" stroke-width="1.5"/>
+  <text x="769" y="138" text-anchor="middle" fill="#34D399" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="700">gemma3</text>
+  <text x="769" y="162" text-anchor="middle" fill="#A7F3D0" font-family="Arial, Helvetica, sans-serif" font-size="12">general-purpose</text>
+
+  <rect x="866" y="110" width="150" height="74" rx="12" fill="#102838" stroke="#FDE68A" stroke-width="1.5"/>
+  <text x="941" y="138" text-anchor="middle" fill="#FDE68A" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="700">qwen2.5</text>
+  <text x="941" y="162" text-anchor="middle" fill="#FEF3C7" font-family="Arial, Helvetica, sans-serif" font-size="12">coding + JSON</text>
+
+  <rect x="694" y="202" width="150" height="74" rx="12" fill="#102838" stroke="#67E8F9" stroke-width="1.5"/>
+  <text x="769" y="230" text-anchor="middle" fill="#67E8F9" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="700">llama3.2</text>
+  <text x="769" y="254" text-anchor="middle" fill="#CFFAFE" font-family="Arial, Helvetica, sans-serif" font-size="12">small + local</text>
+
+  <rect x="866" y="202" width="150" height="74" rx="12" fill="#102838" stroke="#93C5FD" stroke-width="1.5"/>
+  <text x="941" y="230" text-anchor="middle" fill="#93C5FD" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="700">mistral</text>
+  <text x="941" y="254" text-anchor="middle" fill="#DBEAFE" font-family="Arial, Helvetica, sans-serif" font-size="12">fast + lightweight</text>
+
+  <rect x="694" y="312" width="322" height="96" rx="16" fill="#0F2230" stroke="#2D6484" stroke-width="1.5"/>
+  <text x="720" y="342" fill="#9ED7E8" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="700" letter-spacing="1.2">PRIVATE AI WORKFLOW</text>
+  <line x1="726" y1="366" x2="982" y2="366" stroke="#2D6484" stroke-width="1.5" stroke-dasharray="5 4"/>
+  <rect x="724" y="378" width="78" height="18" rx="9" fill="#133245"/>
+  <text x="763" y="391" text-anchor="middle" fill="#D9F3FF" font-family="Arial, Helvetica, sans-serif" font-size="11">Prompt</text>
+  <rect x="818" y="378" width="78" height="18" rx="9" fill="#133245"/>
+  <text x="857" y="391" text-anchor="middle" fill="#D9F3FF" font-family="Arial, Helvetica, sans-serif" font-size="11">Local API</text>
+  <rect x="912" y="378" width="78" height="18" rx="9" fill="#133245"/>
+  <text x="951" y="391" text-anchor="middle" fill="#D9F3FF" font-family="Arial, Helvetica, sans-serif" font-size="11">Response</text>
+
+  <rect x="780" y="72" width="244" height="48" rx="24" fill="url(#accent)"/>
+  <text x="902" y="103" text-anchor="middle" fill="#07131B" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="700" letter-spacing="1.3">OLLAMA QUICKSTART</text>
+
+  <text x="104" y="420" fill="#8CD6C4" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="700" letter-spacing="4">LOCAL LLMs</text>
+  <text x="104" y="478" fill="#F2FCFF" font-family="Arial, Helvetica, sans-serif" font-size="48" font-weight="700">Get Started Hosting</text>
+  <text x="104" y="534" fill="#F2FCFF" font-family="Arial, Helvetica, sans-serif" font-size="48" font-weight="700">Your Own LLMs Using Ollama</text>
+  <text x="104" y="570" fill="#8AAFC3" font-family="Arial, Helvetica, sans-serif" font-size="21">Private AI, local models, Modelfiles, and a clean on-ramp for builders.</text>
+</svg>

@@ -1,4 +1,180 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/"><channel><title>YottaDynamics Technical Notes</title><link>https://blog.yottadynamics.com/</link><description>Technical notes on AI infrastructure, Kubernetes operations, and platform engineering.</description><generator>Hugo</generator><language>en-us</language><lastBuildDate>Sat, 18 Apr 2026 16:26:41 +0000</lastBuildDate><atom:link href="https://blog.yottadynamics.com/tags/delivery/index.xml" rel="self" type="application/rss+xml"/><item><title>Observability for AI Agents: Logs, Traces, and Metrics That Actually Tell You Something</title><link>https://blog.yottadynamics.com/posts/observability-for-ai-agents/</link><pubDate>Fri, 17 Apr 2026 11:00:00 -0400</pubDate><guid>https://blog.yottadynamics.com/posts/observability-for-ai-agents/</guid><description>Monitoring an agent is not the same as monitoring a service. The question shifts from whether it is running to whether it is reasoning correctly — and that requires a different observability stack built around structured traces, quality metrics, and cost attribution.</description><category>ai-agents</category><category>operations</category><category>observability</category><category>ai-infrastructure</category><enclosure url="https://blog.yottadynamics.com/images/posts/observability-for-ai-agents.svg" type="image/svg+xml"/><content:encoded><![CDATA[<p>An agent can pass every health check, return HTTP 200 on every request, and stay within p95 latency targets — while quietly producing worse and worse output for weeks. By the time the degradation shows up in aggregate business metrics, users have already formed an opinion.</p>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/"><channel><title>YottaDynamics Technical Notes</title><link>https://blog.yottadynamics.com/</link><description>Technical notes on AI infrastructure, Kubernetes operations, and platform engineering.</description><generator>Hugo</generator><language>en-us</language><lastBuildDate>Tue, 28 Apr 2026 18:43:28 +0000</lastBuildDate><atom:link href="https://blog.yottadynamics.com/tags/delivery/index.xml" rel="self" type="application/rss+xml"/><item><title>Get Started Hosting Your Own LLMs Using Ollama: Your Private AI Playground</title><link>https://blog.yottadynamics.com/posts/get-started-hosting-your-own-llms-using-ollama/</link><pubDate>Tue, 28 Apr 2026 10:00:00 -0400</pubDate><guid>https://blog.yottadynamics.com/posts/get-started-hosting-your-own-llms-using-ollama/</guid><description>Ollama is one of the fastest ways to move from cloud API dependency to local model serving on your own machine. This guide covers installation, first-run commands, model selection, Open WebUI, Modelfiles, and basic API usage.</description><category>llms</category><category>ollama</category><category>developer-tools</category><category>self-hosting</category><category>privacy</category><enclosure url="https://blog.yottadynamics.com/images/posts/get-started-hosting-your-own-llms-using-ollama.svg" type="image/svg+xml"/><content:encoded><![CDATA[<p><em>A practical guide to running open models on your own machine without turning your laptop into an accidental research project.</em></p>
+<hr>
+<p>Running LLMs locally used to mean wrestling with CUDA versions, model conversion scripts, runtime flags, and an uncomfortable amount of trial and error. <strong>Ollama</strong> changed that. It packages model download, local inference, a clean CLI, and a simple API into one workflow that works well enough for day-one experimentation and useful enough for real local tooling.</p>
+<p>If your priorities are privacy, low-latency iteration, predictable cost, or just understanding the stack you are building on top of, Ollama is one of the easiest places to start.</p>
+<p>This walkthrough reflects the Ollama and Open WebUI documentation available on <strong>April 28, 2026</strong>.</p>
+<hr>
+<h2 id="why-ollama">Why Ollama?</h2>
+<p>Ollama sits in a very useful middle ground.</p>
+<p>It is simpler than assembling your own <code>llama.cpp</code> or <code>vLLM</code> workflow from scratch, but more flexible than being locked into a hosted API. For many developers, that makes it the fastest path to a private local AI environment.</p>
+<p>What makes it compelling:</p>
+<ul>
+<li><strong>Privacy-first</strong>: your prompts, files, and outputs can stay on your machine.</li>
+<li><strong>Predictable cost</strong>: after hardware and electricity, there is no per-token billing for local models.</li>
+<li><strong>Low-latency iteration</strong>: you can test prompts, agents, and workflows without waiting on a remote provider.</li>
+<li><strong>Simple model management</strong>: pull, run, list, remove, and customize models from one CLI.</li>
+<li><strong>Built-in API</strong>: local apps can talk to Ollama over HTTP without extra glue code.</li>
+<li><strong>Broad model ecosystem</strong>: the model library includes general-purpose, coding, reasoning, vision, and embedding models.</li>
+</ul>
+<p>If you are a developer, researcher, hobbyist, or privacy-conscious power user, this is enough to build a very capable personal AI stack.</p>
+<hr>
+<h2 id="step-1-install-ollama">Step 1: Install Ollama</h2>
+<p>Ollama supports <strong>macOS, Windows, and Linux</strong>.</p>
+<p><strong>macOS</strong></p>
+<ul>
+<li>Download the app from <a href="https://ollama.com/download/mac">ollama.com/download/mac</a>.</li>
+<li>Install the app and let it expose the <code>ollama</code> CLI in your <code>PATH</code>.</li>
+</ul>
+<p><strong>Windows</strong></p>
+<ul>
+<li>Download the installer from <a href="https://ollama.com/download/windows">ollama.com/download/windows</a>.</li>
+<li>After installation, Ollama runs in the background and the CLI is available in PowerShell, Command Prompt, or Windows Terminal.</li>
+</ul>
+<p><strong>Linux</strong></p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>curl -fsSL https://ollama.com/install.sh | sh
+</span></span></code></pre></div><p>Verify the install:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>ollama -v
+</span></span></code></pre></div><p>On macOS and Windows, the desktop app typically starts the local service for you. On Linux or server-style installs, you may need to start the service explicitly:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>ollama serve
+</span></span></code></pre></div><p>Once running, Ollama exposes a local API on <code>http://localhost:11434</code>.</p>
+<hr>
+<h2 id="step-2-run-your-first-model">Step 2: Run Your First Model</h2>
+<p>There are two easy ways to start:</p>
+<ol>
+<li>Run <code>ollama</code> to use the interactive launcher.</li>
+<li>Run a specific model directly from the CLI.</li>
+</ol>
+<p>The most direct path looks like this:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>ollama run gemma3
+</span></span></code></pre></div><p>Or, if you specifically want to start with a smaller Llama-family model:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>ollama run llama3.2
+</span></span></code></pre></div><p>The first time you run a model, Ollama downloads it automatically and then drops you into an interactive chat.</p>
+<h3 id="good-starter-models">Good starter models</h3>
+<p>Your best first model depends on your hardware more than your ideology.</p>
+<ul>
+<li><strong><code>gemma3</code></strong>: a strong default if you want a capable general-purpose model that still runs locally.</li>
+<li><strong><code>llama3.2</code></strong>: a simple starting point for smaller local deployments.</li>
+<li><strong><code>qwen2.5:3b</code> or <code>qwen2.5:7b</code></strong>: strong general-purpose choices, especially if you care about coding and structured output.</li>
+<li><strong><code>qwen2.5-coder</code></strong>: a solid option for code generation, refactoring, and debugging tasks.</li>
+<li><strong><code>mistral</code></strong>: lightweight and fast on modest hardware.</li>
+<li><strong><code>phi3</code></strong>: useful when you need something compact.</li>
+</ul>
+<p>List the models already on your machine:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>ollama ls
+</span></span></code></pre></div><p>Browse more options in the <a href="https://ollama.com/library">Ollama Library</a>.</p>
+<h3 id="a-practical-note-on-quantization">A practical note on quantization</h3>
+<p>If your machine is memory-constrained, smaller quantized variants are usually the right answer. A slightly smaller model that runs reliably is more useful than a larger one that swaps, stalls, or crashes.</p>
+<p>As a rule, optimize for <strong>consistency first</strong>, then scale model size upward once you know your hardware can carry it.</p>
+<hr>
+<h2 id="step-3-learn-the-core-commands">Step 3: Learn the Core Commands</h2>
+<p>These are the commands you will use constantly:</p>
+<ul>
+<li><code>ollama pull &lt;model&gt;</code>: download a model without starting a chat.</li>
+<li><code>ollama run &lt;model&gt;</code>: run a model interactively.</li>
+<li><code>ollama ls</code>: list local models.</li>
+<li><code>ollama ps</code>: show models currently loaded in memory.</li>
+<li><code>ollama rm &lt;model&gt;</code>: remove a local model.</li>
+<li><code>ollama serve</code>: start the local Ollama server.</li>
+</ul>
+<p>That is enough to cover most day-to-day usage.</p>
+<hr>
+<h2 id="step-4-add-a-web-ui">Step 4: Add a Web UI</h2>
+<p>The CLI is enough for serious work, but a browser UI is often better for experimentation, sharing, and file-based workflows.</p>
+<p><strong>Open WebUI</strong> is the easiest upgrade path. It gives you a ChatGPT-style interface on top of your local Ollama instance.</p>
+<p>Quick start with Docker:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>docker run -d -p 3000:8080 <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>  --add-host<span style="color:#f92672">=</span>host.docker.internal:host-gateway <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>  -v open-webui:/app/backend/data <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>  --name open-webui <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>  --restart always <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>  ghcr.io/open-webui/open-webui:main
+</span></span></code></pre></div><p>Then open:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>http://localhost:3000
+</span></span></code></pre></div><p>If Open WebUI is running in Docker while Ollama runs on your host machine, point Open WebUI at:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>http://host.docker.internal:11434
+</span></span></code></pre></div><p>Once connected, you get a much more comfortable local chat environment for comparing models, testing prompts, and working with uploaded content.</p>
+<hr>
+<h2 id="step-5-customize-behavior-with-a-modelfile">Step 5: Customize Behavior with a Modelfile</h2>
+<p>One of Ollama&rsquo;s most useful features is the <strong>Modelfile</strong>.</p>
+<p>Think of it as a reproducible recipe for a tailored assistant: base model, system behavior, runtime parameters, and example conversation structure in one file.</p>
+<p>Example:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-dockerfile" data-lang="dockerfile"><span style="display:flex;"><span><span style="color:#66d9ef">FROM</span> <span style="color:#e6db74">llama3.2</span><span style="color:#960050;background-color:#1e0010">
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">
+</span></span></span><span style="display:flex;"><span>SYSTEM <span style="color:#e6db74">&#34;&#34;&#34;</span><span style="color:#960050;background-color:#1e0010">
+</span></span></span><span style="display:flex;"><span>You are a helpful coding assistant specialized in Python and web development.<span style="color:#960050;background-color:#1e0010">
+</span></span></span><span style="display:flex;"><span>Always respond with clear, commented code examples.<span style="color:#960050;background-color:#1e0010">
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">&#34;&#34;&#34;</span><span style="color:#960050;background-color:#1e0010">
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">
+</span></span></span><span style="display:flex;"><span>PARAMETER temperature 0.7<span style="color:#960050;background-color:#1e0010">
+</span></span></span><span style="display:flex;"><span>PARAMETER num_ctx <span style="color:#ae81ff">8192</span><span style="color:#960050;background-color:#1e0010">
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">
+</span></span></span><span style="display:flex;"><span>MESSAGE user <span style="color:#e6db74">&#34;Explain how to build a REST API&#34;</span><span style="color:#960050;background-color:#1e0010">
+</span></span></span><span style="display:flex;"><span>MESSAGE assistant <span style="color:#e6db74">&#34;Sure. Here&#39;s a clean FastAPI example and why each part exists.&#34;</span><span style="color:#960050;background-color:#1e0010">
+</span></span></span></code></pre></div><p>Build it:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>ollama create my-coder -f Modelfile
+</span></span></code></pre></div><p>Then run it:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>ollama run my-coder
+</span></span></code></pre></div><p>This is a very effective pattern for role-specific assistants: coding helpers, internal documentation bots, architecture reviewers, domain-specific writers, or local support tools.</p>
+<hr>
+<h2 id="step-6-use-ollama-from-code">Step 6: Use Ollama from Code</h2>
+<p>Ollama exposes a local HTTP API, but the Python library is an easy place to start.</p>
+<p>Install it:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>pip install ollama
+</span></span></code></pre></div><p>Python example:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">from</span> ollama <span style="color:#f92672">import</span> chat
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>response <span style="color:#f92672">=</span> chat(
+</span></span><span style="display:flex;"><span>    model<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;gemma3&#34;</span>,
+</span></span><span style="display:flex;"><span>    messages<span style="color:#f92672">=</span>[
+</span></span><span style="display:flex;"><span>        {
+</span></span><span style="display:flex;"><span>            <span style="color:#e6db74">&#34;role&#34;</span>: <span style="color:#e6db74">&#34;user&#34;</span>,
+</span></span><span style="display:flex;"><span>            <span style="color:#e6db74">&#34;content&#34;</span>: <span style="color:#e6db74">&#34;Write a Python function that returns the Fibonacci sequence up to n elements.&#34;</span>,
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>    ],
+</span></span><span style="display:flex;"><span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>print(response<span style="color:#f92672">.</span>message<span style="color:#f92672">.</span>content)
+</span></span></code></pre></div><p>This is enough to wire Ollama into scripts, developer tools, side projects, or local prototypes without going through a hosted API.</p>
+<hr>
+<h2 id="hardware-reality-check">Hardware Reality Check</h2>
+<p>Local model serving is not magic. Hardware still matters.</p>
+<p>Useful rough guidance:</p>
+<ul>
+<li><strong>8 GB to 16 GB memory</strong>: stay in the small-model range and favor compact or quantized models.</li>
+<li><strong>16 GB to 32 GB memory</strong>: 7B-class models become much more comfortable.</li>
+<li><strong>24 GB+ dedicated GPU VRAM or large unified memory systems</strong>: you can move into larger and more capable models with fewer compromises.</li>
+</ul>
+<p>Two practical rules matter more than any size chart:</p>
+<ol>
+<li>Smaller models that are always available beat larger models that are unstable.</li>
+<li>Context length and quantization settings can matter just as much as parameter count.</li>
+</ol>
+<p>If performance feels wrong, check <code>ollama ps</code> first. It is the fastest way to confirm whether a model is fitting in GPU memory, CPU memory, or both.</p>
+<hr>
+<h2 id="what-ollama-is-great-for">What Ollama Is Great For</h2>
+<p>Once the basics are working, the common next steps are obvious:</p>
+<ul>
+<li>a private coding assistant</li>
+<li>local document Q&amp;A</li>
+<li>offline experimentation on a laptop</li>
+<li>prompt testing without API cost</li>
+<li>lightweight internal tools for developers or analysts</li>
+<li>evaluating open models before building a larger self-hosted platform</li>
+</ul>
+<p>For many people, Ollama is not the final production serving layer. It is the fastest way to learn what your workloads actually need before you commit to a heavier stack.</p>
+<hr>
+<h2 id="final-take">Final Take</h2>
+<p>If you want to explore local AI without spending a week assembling plumbing, Ollama is one of the best on-ramps available right now.</p>
+<p>Install it, pull a model, and start with something small and reliable. Add Open WebUI when you want a better interface. Reach for Modelfiles when you want repeatable custom behavior. Move to heavier infrastructure only after you understand your real workload.</p>
+<p>That sequence will teach you more than reading another dozen model benchmark threads.</p>
+<h3 id="useful-links">Useful links</h3>
+<ul>
+<li><a href="https://docs.ollama.com/">Ollama Docs</a></li>
+<li><a href="https://ollama.com/library">Ollama Library</a></li>
+<li><a href="https://docs.ollama.com/modelfile">Modelfile Reference</a></li>
+<li><a href="https://docs.openwebui.com/">Open WebUI Docs</a></li>
+</ul>
+]]></content:encoded></item><item><title>Observability for AI Agents: Logs, Traces, and Metrics That Actually Tell You Something</title><link>https://blog.yottadynamics.com/posts/observability-for-ai-agents/</link><pubDate>Fri, 17 Apr 2026 11:00:00 -0400</pubDate><guid>https://blog.yottadynamics.com/posts/observability-for-ai-agents/</guid><description>Monitoring an agent is not the same as monitoring a service. The question shifts from whether it is running to whether it is reasoning correctly — and that requires a different observability stack built around structured traces, quality metrics, and cost attribution.</description><category>ai-agents</category><category>operations</category><category>observability</category><category>ai-infrastructure</category><enclosure url="https://blog.yottadynamics.com/images/posts/observability-for-ai-agents.svg" type="image/svg+xml"/><content:encoded><![CDATA[<p>An agent can pass every health check, return HTTP 200 on every request, and stay within p95 latency targets — while quietly producing worse and worse output for weeks. By the time the degradation shows up in aggregate business metrics, users have already formed an opinion.</p>
 <p>Traditional monitoring answers the wrong question. &ldquo;Is it running?&rdquo; is not the question that matters for agents. The question is &ldquo;is it reasoning correctly?&rdquo; — and that requires a fundamentally different observability stack.</p>
 <p>This post covers what that stack looks like: the three pillars (logs, traces, metrics), what to capture at each layer, the specific failure modes each one surfaces, and the order in which to build it.</p>
 <hr>
